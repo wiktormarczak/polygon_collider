@@ -7,6 +7,7 @@
 struct App
 {
     Window *window;
+    Renderer *renderer;
 };
 
 App *app_create()
@@ -14,6 +15,7 @@ App *app_create()
     App *app = malloc(sizeof(App));
 
     app->window = window_create("Polygon Collider", 800, 600);
+    app->renderer = renderer_create();
 
     return app;
 }
@@ -21,6 +23,9 @@ App *app_create()
 void app_destroy(App *app)
 {
     window_destroy(app->window);
+    renderer_destroy(app->renderer);
+
+    free(app);
 }
 
 void app_run(App *app)
@@ -31,7 +36,7 @@ void app_run(App *app)
         if(window_was_closed(app->window))
             open = false;
 
-        renderer_clear();
+        renderer_clear(app->renderer);
 
         window_refresh(app->window);
     }
