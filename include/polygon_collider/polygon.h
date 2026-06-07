@@ -6,7 +6,9 @@
 
 typedef struct Polygon Polygon;
 
-Polygon *polygon_create(int vertex_count, Vector *vertex, Color color);
+Polygon *polygon_create(unsigned int vertex_count, Vector *vertex, Color color);
 void polygon_destroy(Polygon *polygon);
+
+void polygon_update(Polygon *polygon);
 
 #endif
