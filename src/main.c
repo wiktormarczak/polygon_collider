@@ -1,7 +1,7 @@
-#include <stdio.h>
+#include <SDL3/SDL.h>
 
 int main()
 {
-    printf("Hello World!\n");
+    SDL_Log("Hello World!\n");
     return 0;
 }
