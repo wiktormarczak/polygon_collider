@@ -50,6 +50,7 @@ Window *window_create(const char *title, const int width, const int height)
         return NULL;
     }
 
+    glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     return window;
