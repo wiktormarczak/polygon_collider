@@ -42,7 +42,7 @@ Polygon *polygon_create(unsigned int vertex_count, Vector *vertex, Color color)
     polygon->angular_velocity = 0.0f;
 
     polygon->color = color;
-    polygon->vertex_buffer = vertex_buffer_create(vertex_count);
+    // polygon->vertex_buffer = vertex_buffer_create(vertex_count);
 
     return polygon;
 }
@@ -103,6 +103,11 @@ unsigned int polygon_get_vertex_buffer(Polygon *polygon)
     return polygon->vertex_buffer;
 }
 
+void polygon_copy_world_vertex(Polygon *polygon, Vector *destination)
+{
+    memcpy(destination, polygon->world_vertex, polygon->vertex_count * sizeof(Vector));
+}
+
 void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta)
 {
     polygon->linear_velocity.x += delta.x;
@@ -129,5 +134,5 @@ void polygon_update(Polygon *polygon, float delta_time)
         polygon->world_vertex[i].y = x * sin(polygon->orientation) + y * cos(polygon->orientation) + polygon->position.y;
     }
 
-    vertex_buffer_update(polygon->vertex_buffer, polygon->vertex_count, polygon->world_vertex);
+    // vertex_buffer_update(polygon->vertex_buffer, polygon->vertex_count, polygon->world_vertex);
 }

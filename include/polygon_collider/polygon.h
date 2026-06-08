@@ -15,6 +15,7 @@ void polygon_destroy(Polygon *polygon);
 unsigned int polygon_get_vertex_count(Polygon *polygon);
 Color polygon_get_color(Polygon *polygon);
 unsigned int polygon_get_vertex_buffer(Polygon *polygon);
+void polygon_copy_world_vertex(Polygon *polygon, Vector *destination);
 
 void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta);
 void polygon_adjust_angular_velocity(Polygon *polygon, float delta);

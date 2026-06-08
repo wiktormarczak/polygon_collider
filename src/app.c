@@ -43,10 +43,10 @@ App *app_create()
 
 void app_destroy(App *app)
 {
-    window_destroy(app->window);
     renderer_destroy(app->renderer);
     camera_destroy(app->camera);
     timer_destroy(app->timer);
+    window_destroy(app->window);
 
     int i;
     for(i = 0; i < app->polygon_count; i++)
@@ -76,7 +76,8 @@ void app_run(App *app)
         renderer_clear(app->renderer);
 
         for(i = 0; i < app->polygon_count; i++)
-            renderer_draw_polygon(app->renderer, app->polygon[i], app->camera);
+            renderer_submit_polygon(app->renderer, app->polygon[i]);
+        renderer_flush(app->renderer, app->camera);
 
         window_refresh(app->window);
     }
