@@ -17,7 +17,7 @@ App *app_create()
 
     app->window = window_create("Polygon Collider", 800, 600);
     app->renderer = renderer_create();
-    app->polygon = polygon_create_triangle(color_get(1.0f, 0.0f, 0.0f));
+    app->polygon = polygon_create_regular(8, 0.5f, color_get(1.0f, 0.0f, 0.0f));
 
     return app;
 }

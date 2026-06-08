@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 struct Polygon
 {
@@ -39,6 +40,26 @@ Polygon *polygon_create_triangle(Color color)
     vertex[2].y = -0.5f;
 
     return polygon_create(3, vertex, color);
+}
+
+Polygon *polygon_create_regular(unsigned int vertex_count, float radius, Color color)
+{
+    if(vertex_count < 3)
+        return NULL;
+
+    Vector *vertex = malloc(vertex_count * sizeof(Vector));
+
+    int i;
+    float delta_angle = (2.0f * 3.1416f) / vertex_count;
+    for(i = 0; i < vertex_count; i++)
+    {
+        vertex[i].x = radius * cos(i * delta_angle);
+        vertex[i].y = radius * sin(i * delta_angle);
+    }
+
+    Polygon *polygon = polygon_create(vertex_count, vertex, color);
+    free(vertex);
+    return polygon;
 }
 
 void polygon_destroy(Polygon *polygon)
