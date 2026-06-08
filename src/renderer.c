@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 struct Renderer
 {
@@ -15,6 +16,8 @@ struct Renderer
 
     unsigned int vertex_buffer, element_buffer;
     unsigned int submitted_to_vertex_buffer, submitted_to_element_buffer;
+    Vector to_vertex_buffer[100000];
+    unsigned int to_element_buffer[300000];
 };
 
 Renderer *renderer_create()
@@ -61,32 +64,27 @@ void renderer_submit_polygon(Renderer* renderer, Polygon *polygon)
     int i;
 
     unsigned int vertex_count = polygon_get_vertex_count(polygon);
-    Vector *vertex = malloc(vertex_count * sizeof(Vector));
-    polygon_copy_world_vertex(polygon, vertex);
+    unsigned int init_index = renderer->submitted_to_vertex_buffer;
 
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_buffer);
-    glBufferSubData(GL_ARRAY_BUFFER, renderer->submitted_to_vertex_buffer * sizeof(Vector), vertex_count * sizeof(Vector), vertex);
+    polygon_copy_world_vertex(polygon, &renderer->to_vertex_buffer[renderer->submitted_to_vertex_buffer]);
     renderer->submitted_to_vertex_buffer += vertex_count;
 
-    free(vertex);
-
     unsigned int index_count = 3 * (vertex_count - 2);
-    unsigned int *index = malloc(index_count * sizeof(unsigned int));
     for(i = 0; i < vertex_count - 2; i++)
     {
-        index[3 * i] = renderer->submitted_to_element_buffer;
-        index[3 * i + 1] = renderer->submitted_to_element_buffer + i + 1;
-        index[3 * i + 2] = renderer->submitted_to_element_buffer + i + 2;
+        renderer->to_element_buffer[renderer->submitted_to_element_buffer + 3 * i] = init_index;
+        renderer->to_element_buffer[renderer->submitted_to_element_buffer + 3 * i + 1] = init_index + i + 1;
+        renderer->to_element_buffer[renderer->submitted_to_element_buffer + 3 * i + 2] = init_index + i + 2;
     }
 
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, renderer->submitted_to_element_buffer * sizeof(unsigned int), index_count * sizeof(unsigned int), index);
     renderer->submitted_to_element_buffer += index_count;
-
-    free(index);
 }
 
 void renderer_flush(Renderer *renderer, Camera *camera)
 {
+    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->submitted_to_vertex_buffer * sizeof(Vector), renderer->to_vertex_buffer);
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, renderer->submitted_to_element_buffer * sizeof(unsigned int), renderer->to_element_buffer);
+
     float matrix[16];
     camera_copy_matrix(camera, matrix);
     glUniformMatrix4fv(renderer->matrix_location, 1, true, matrix);
@@ -97,7 +95,4 @@ void renderer_flush(Renderer *renderer, Camera *camera)
 
     renderer->submitted_to_vertex_buffer = 0;
     renderer->submitted_to_element_buffer = 0;
-
-    glBufferData(GL_ARRAY_BUFFER, 100000 * sizeof(Vector), NULL, GL_DYNAMIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 300000 * sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
 }

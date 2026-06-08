@@ -125,14 +125,16 @@ void polygon_update(Polygon *polygon, float delta_time)
     polygon->position.y += delta_time * polygon->linear_velocity.y;
     polygon->orientation += delta_time * polygon->angular_velocity;
 
+    polygon->orientation = fmod(polygon->orientation, 2.0f * 3.1416f);
+
     int i;
     for(i = 0; i < polygon->vertex_count; i++)
     {
         float x = polygon->vertex[i].x;
         float y = polygon->vertex[i].y;
-        polygon->world_vertex[i].x = x * cos(polygon->orientation) - y * sin(polygon->orientation) + polygon->position.x;
-        polygon->world_vertex[i].y = x * sin(polygon->orientation) + y * cos(polygon->orientation) + polygon->position.y;
+        float s = sin(polygon->orientation);
+        float c = cos(polygon->orientation);
+        polygon->world_vertex[i].x = x * c - y * s + polygon->position.x;
+        polygon->world_vertex[i].y = x * s + y * c + polygon->position.y;
     }
-
-    // vertex_buffer_update(polygon->vertex_buffer, polygon->vertex_count, polygon->world_vertex);
 }
