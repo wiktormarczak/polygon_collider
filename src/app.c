@@ -11,9 +11,11 @@ struct App
 {
     Window *window;
     Renderer *renderer;
-    Polygon *polygon;
     Camera *camera;
     Timer *timer;
+
+    unsigned int polygon_count;
+    Polygon **polygon;
 };
 
 App *app_create()
@@ -22,12 +24,19 @@ App *app_create()
 
     app->window = window_create("Polygon Collider", 800, 600);
     app->renderer = renderer_create();
-    app->polygon = polygon_create_regular(5, 0.5f, color_get(1.0f, 0.0f, 0.0f));
     app->camera = camera_create((float)800 / (float)600);
     app->timer = timer_create();
 
-    polygon_adjust_linear_velocity(app->polygon, vector_get(1.0f, -0.1f));
-    polygon_adjust_angular_velocity(app->polygon, 0.5f);
+    srand(time(NULL));
+    app->polygon_count = 8192;
+    app->polygon = malloc(app->polygon_count * sizeof(Polygon *));
+    int i;
+    for(i = 0; i < app->polygon_count; i++)
+    {
+        app->polygon[i] = polygon_create_regular(3 + rand() % 6, 1.0f, color_get((rand() % 11) / 10.0f, (rand() % 11) / 10.0f, (rand() %11) / 10.0f));
+        polygon_adjust_linear_velocity(app->polygon[i], vector_get((rand() % 11 - 5) / 10.0f, (rand() % 11 - 5) / 10.0f));
+        polygon_adjust_angular_velocity(app->polygon[i], (rand() % 11 - 5) / 10.0f);
+    }
 
     return app;
 }
@@ -36,9 +45,13 @@ void app_destroy(App *app)
 {
     window_destroy(app->window);
     renderer_destroy(app->renderer);
-    polygon_destroy(app->polygon);
     camera_destroy(app->camera);
     timer_destroy(app->timer);
+
+    int i;
+    for(i = 0; i < app->polygon_count; i++)
+        polygon_destroy(app->polygon[i]);
+    free(app->polygon);
 
     free(app);
 }
@@ -49,17 +62,21 @@ void app_run(App *app)
     while(open)
     {
         float delta_time = timer_get_delta(app->timer);
-        printf("FPS: %f\n", 1.0f / delta_time);
+        printf("FPS: %.2f\n", 1.0f / delta_time);
 
         if(window_was_closed(app->window))
             open = false;
 
-        polygon_update(app->polygon, delta_time);
+        int i;
+        for(i = 0; i < app->polygon_count; i++)
+            polygon_update(app->polygon[i], delta_time);
+
         camera_update(app->camera);
 
         renderer_clear(app->renderer);
 
-        renderer_draw_polygon(app->renderer, app->polygon, app->camera);
+        for(i = 0; i < app->polygon_count; i++)
+            renderer_draw_polygon(app->renderer, app->polygon[i], app->camera);
 
         window_refresh(app->window);
     }
