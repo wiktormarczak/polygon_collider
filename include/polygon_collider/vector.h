@@ -6,4 +6,6 @@ typedef struct
     float x, y;
 } Vector;
 
+Vector vector_get(float x, float y);
+
 #endif

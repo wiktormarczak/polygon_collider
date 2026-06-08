@@ -10,7 +10,14 @@
 struct Polygon
 {
     unsigned int vertex_count;
-    Vector *vertex;
+    Vector *vertex, *world_vertex;
+
+    Vector position;
+    float orientation;
+
+    Vector linear_velocity;
+    float angular_velocity;
+
     Color color;
 
     unsigned int vertex_buffer;
@@ -21,8 +28,19 @@ Polygon *polygon_create(unsigned int vertex_count, Vector *vertex, Color color)
     Polygon *polygon = malloc(sizeof(Polygon));
 
     polygon->vertex_count = vertex_count;
+
     polygon->vertex = malloc(vertex_count * sizeof(Vector));
     memcpy(polygon->vertex, vertex, vertex_count * sizeof(Vector));
+    polygon->world_vertex = malloc(vertex_count * sizeof(Vector));
+    memcpy(polygon->world_vertex, vertex, vertex_count * sizeof(Vector));
+
+    polygon->position.x = 0.0f;
+    polygon->position.y = 0.0f;
+    polygon->orientation = 0.0f;
+    polygon->linear_velocity.x = 0.0f;
+    polygon->linear_velocity.y = 0.0f;
+    polygon->angular_velocity = 0.0f;
+
     polygon->color = color;
     polygon->vertex_buffer = vertex_buffer_create(vertex_count);
 
@@ -85,7 +103,31 @@ unsigned int polygon_get_vertex_buffer(Polygon *polygon)
     return polygon->vertex_buffer;
 }
 
-void polygon_update(Polygon *polygon)
+void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta)
 {
-    vertex_buffer_update(polygon->vertex_buffer, polygon->vertex_count, polygon->vertex);
+    polygon->linear_velocity.x += delta.x;
+    polygon->linear_velocity.y += delta.y;
+}
+
+void polygon_adjust_angular_velocity(Polygon *polygon, float delta)
+{
+    polygon->angular_velocity += delta;
+}
+
+void polygon_update(Polygon *polygon, float delta_time)
+{
+    polygon->position.x += delta_time * polygon->linear_velocity.x;
+    polygon->position.y += delta_time * polygon->linear_velocity.y;
+    polygon->orientation += delta_time * polygon->angular_velocity;
+
+    int i;
+    for(i = 0; i < polygon->vertex_count; i++)
+    {
+        float x = polygon->vertex[i].x;
+        float y = polygon->vertex[i].y;
+        polygon->world_vertex[i].x = x * cos(polygon->orientation) - y * sin(polygon->orientation) + polygon->position.x;
+        polygon->world_vertex[i].y = x * sin(polygon->orientation) + y * cos(polygon->orientation) + polygon->position.y;
+    }
+
+    vertex_buffer_update(polygon->vertex_buffer, polygon->vertex_count, polygon->world_vertex);
 }

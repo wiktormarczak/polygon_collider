@@ -9,12 +9,15 @@ typedef struct Polygon Polygon;
 Polygon *polygon_create(unsigned int vertex_count, Vector *vertex, Color color);
 Polygon *polygon_create_triangle(Color color);
 Polygon *polygon_create_regular(unsigned int vertex_count, float radius, Color color);
+
 void polygon_destroy(Polygon *polygon);
 
 unsigned int polygon_get_vertex_count(Polygon *polygon);
 Color polygon_get_color(Polygon *polygon);
 unsigned int polygon_get_vertex_buffer(Polygon *polygon);
 
-void polygon_update(Polygon *polygon);
+void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta);
+void polygon_adjust_angular_velocity(Polygon *polygon, float delta);
+void polygon_update(Polygon *polygon, float delta_time);
 
 #endif
