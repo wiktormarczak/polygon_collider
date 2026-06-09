@@ -19,6 +19,6 @@
 
 #include <polygon_collider/polygon.h>
 
-bool collision_check(Polygon *left, Polygon *right);
+bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
 
 #endif

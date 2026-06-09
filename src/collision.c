@@ -19,78 +19,98 @@
 #include <float.h>
 #include <stdlib.h>
 
-static void collision_project_on_axis(Vector axis, unsigned int vertex_count, Vector *vertex, float *min, float *max)
+typedef struct
 {
-    *min = FLT_MAX;
-    *max = FLT_MIN;
+    unsigned int vertex_count;
+    Vector *vertex;
+} CollisionBox;
 
-    for(int i = 0; i < vertex_count; i++)
+static CollisionBox *collision_box_create(Polygon *polygon);
+static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
+static float collision_get_projection_min(Vector axis, CollisionBox *collision_box, Vector *contact_point_destination);
+
+bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
+{
+    CollisionBox *collision_box_left = collision_box_create(left);
+    CollisionBox *collision_box_right = collision_box_create(right);
+
+    Vector contact_point_left, axis_left, contact_point_right, axis_right;
+    float overlap_left = collision_get_min_overlap(collision_box_left, collision_box_right, &contact_point_left, &axis_left);
+    float overlap_right = collision_get_min_overlap(collision_box_right, collision_box_left, &contact_point_right, &axis_right);
+
+    float overlap = overlap_left;
+    Vector contact_point = contact_point_left;
+    Vector axis = axis_left;
+    if(overlap_right < overlap)
     {
-        float value = vector_get_dot_product(axis, vertex[i]);
-
-        if(value < *min)
-            *min = value;
-
-        if(value > *max)
-            *max = value;
+        overlap = overlap_right;
+        contact_point = contact_point_right;
+        axis = axis_right;
     }
-}
 
-static bool collision_check_axis(Vector axis, unsigned int left_vertex_count, Vector *left_vertex, unsigned int right_vertex_count, Vector *right_vertex)
-{
-    float left_min, left_max;
-    collision_project_on_axis(axis, left_vertex_count, left_vertex, &left_min, &left_max);
-
-    float right_min, right_max;
-    collision_project_on_axis(axis, right_vertex_count, right_vertex, &right_min, &right_max);
-
-    if(left_min > right_max || left_max < right_min)
+    if(overlap_right < 0.0)
         return false;
+
+    *contact_point_destination = contact_point;
+    *axis_destination = axis;
     return true;
 }
 
-bool collision_check(Polygon *left, Polygon *right)
+static CollisionBox *collision_box_create(Polygon *polygon)
 {
-    unsigned int left_vertex_count = polygon_get_vertex_count(left);
-    Vector *left_vertex = malloc(left_vertex_count * sizeof(Vector));
-    polygon_copy_world_vertex(left, left_vertex);
+    CollisionBox *collision_box = malloc(sizeof(CollisionBox));
 
-    unsigned int right_vertex_count = polygon_get_vertex_count(right);
-    Vector *right_vertex = malloc(right_vertex_count * sizeof(Vector));
-    polygon_copy_world_vertex(right, right_vertex);
+    collision_box->vertex_count = polygon_get_vertex_count(polygon);
+    collision_box->vertex = malloc(collision_box->vertex_count * sizeof(Vector));
+    polygon_copy_world_vertex(polygon, collision_box->vertex);
 
-    bool result = true;
+    return collision_box;
+}
 
-    for(int i = 0; i < left_vertex_count; i++)
+static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination)
+{
+    float min_overlap = FLT_MAX;
+    Vector min_contact_point, min_axis;
+
+    for(int i = 0; i < left->vertex_count; i++)
     {
-        Vector axis = vector_get_normal(left_vertex[i], left_vertex[(i + 1) % left_vertex_count]);
+        Vector axis = vector_get_normal(left->vertex[i], left->vertex[(i + 1) % left->vertex_count]);
 
-        if(collision_check_axis(axis, left_vertex_count, left_vertex, right_vertex_count, right_vertex) == false)
+        Vector contact_point;
+        float left_max = vector_get_dot_product(axis, left->vertex[i]);
+        float right_min = collision_get_projection_min(axis, right, &contact_point);
+
+        float overlap = left_max - right_min;
+
+        if(overlap < min_overlap)
         {
-            result = false;
-            break;
+            min_overlap = overlap;
+            min_contact_point = contact_point;
+            min_axis = axis;
         }
     }
 
-    if(result == false)
-    {
-        free(left_vertex);
-        free(right_vertex);
-        return result;
-    }
+    *contact_point_destination = min_contact_point;
+    *axis_destination = min_axis;
+    return min_overlap;
+}
 
-    for(int i = 0; i < right_vertex_count; i++)
-    {
-        Vector axis = vector_get_normal(right_vertex[i], right_vertex[(i + 1) % right_vertex_count]);
+static float collision_get_projection_min(Vector axis, CollisionBox *collision_box, Vector *contact_point_destination)
+{
+    float min = FLT_MAX;
+    Vector contact_point;
 
-        if(collision_check_axis(axis, left_vertex_count, left_vertex, right_vertex_count, right_vertex) == false)
+    for(int i = 0; i < collision_box->vertex_count; i++)
+    {
+        float value = vector_get_dot_product(axis, collision_box->vertex[i]);
+
+        if(value < min)
         {
-            result = false;
-            break;
+            min = value;
+            contact_point = collision_box->vertex[i];
         }
     }
 
-    free(left_vertex);
-    free(right_vertex);
-    return result;
+    *contact_point_destination = contact_point;
+    return min;
 }

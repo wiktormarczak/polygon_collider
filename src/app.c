@@ -121,7 +121,8 @@ static void app_update(App *app, float delta_time)
     polygon_update(app->triangle, delta_time);
     polygon_update(app->square, delta_time);
 
-    if(collision_check(app->triangle, app->square))
+    Vector contact_point, axis;
+    if(collision_check(app->triangle, app->square, &contact_point, &axis))
         polygon_set_color(app->triangle, color_get(1.0f, 1.0f, 1.0f));
     else
         polygon_set_color(app->triangle, color_get(1.0f, 0.0f, 0.0f));
