@@ -132,8 +132,13 @@ static void app_update(App *app, float delta_time)
 
 static void app_draw(App *app)
 {
-    renderer_submit(app->renderer, app->triangle);
-    renderer_submit(app->renderer, app->square);
+    renderer_submit_polygon(app->renderer, app->triangle);
+    renderer_submit_polygon(app->renderer, app->square);
+
+    Vector position = vector_get(0.0f, 0.0f);
+    Vector direction = vector_get(1.0f, 1.0f);
+    Color color = color_get(1.0f, 1.0f, 1.0f);
+    renderer_submit_vector(app->renderer, position, direction, color);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);

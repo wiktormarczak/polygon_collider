@@ -52,6 +52,14 @@ Vector vector_get_scaled(Vector vector, float scalar)
     return vector;
 }
 
+Vector vector_get_rotated(Vector vector, float angle)
+{
+    Vector rotated;
+    rotated.x = vector.x * cos(angle) - vector.y * sin(angle);
+    rotated.y = vector.x * sin(angle) + vector.y * cos(angle);
+    return rotated;
+}
+
 Vector vector_get_sum(Vector left, Vector right)
 {
     left.x += right.x;

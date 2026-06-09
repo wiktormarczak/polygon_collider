@@ -25,7 +25,8 @@ typedef struct Renderer Renderer;
 Renderer *renderer_create();
 void renderer_destroy(Renderer *renderer);
 
-void renderer_submit(Renderer* renderer, Polygon *polygon);
+void renderer_submit_polygon(Renderer* renderer, Polygon *polygon);
+void renderer_submit_vector(Renderer* renderer, Vector position, Vector direction, Color color);
 void renderer_flush(Renderer *renderer, Camera *camera);
 
 #endif

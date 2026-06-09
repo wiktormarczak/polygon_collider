@@ -30,6 +30,7 @@ Vector vector_get_normalized(Vector vector);
 Vector vector_get_perpendicular(Vector vector);
 
 Vector vector_get_scaled(Vector vector, float scalar);
+Vector vector_get_rotated(Vector vector, float angle);
 
 Vector vector_get_sum(Vector left, Vector right);
 Vector vector_get_difference(Vector left, Vector right);
