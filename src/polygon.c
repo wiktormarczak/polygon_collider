@@ -90,6 +90,11 @@ void polygon_copy_world_vertex(Polygon *polygon, Vector *destination)
     memcpy(destination, polygon->world_vertex, polygon->vertex_count * sizeof(Vector));
 }
 
+void polygon_set_position(Polygon *polygon, Vector position)
+{
+    polygon->position = position;
+}
+
 void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta)
 {
     polygon->linear_velocity.x += delta.x;
@@ -99,6 +104,11 @@ void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta)
 void polygon_adjust_angular_velocity(Polygon *polygon, float delta)
 {
     polygon->angular_velocity += delta;
+}
+
+void polygon_set_color(Polygon *polygon, Color color)
+{
+    polygon->color = color;
 }
 
 void polygon_update(Polygon *polygon, float delta_time)

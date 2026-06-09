@@ -33,3 +33,8 @@ void stopwatch_refresh(Stopwatch *stopwatch)
 {
     stopwatch->prev_time = (float)SDL_GetTicks() / 1000.0f;
 }
+
+void stopwatch_delay(Stopwatch *stopwatch, float time)
+{
+    SDL_Delay(time * 1000);
+}

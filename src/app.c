@@ -24,6 +24,7 @@
 #include <polygon_collider/renderer.h>
 #include <polygon_collider/camera.h>
 #include <polygon_collider/polygon.h>
+#include <polygon_collider/collision.h>
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -38,7 +39,7 @@ struct App
     Camera *camera;
 
     unsigned int polygon_count;
-    Polygon **polygon;
+    Polygon *triangle, *square;
 
     bool open;
 };
@@ -59,32 +60,24 @@ App *app_create()
     app->renderer = renderer_create();
     app->camera = camera_create((float)800 / (float)600);
 
-    app->polygon_count = 8192;
-    app->polygon = malloc(app->polygon_count * sizeof(Polygon *));
+    app->triangle = polygon_create_regular(3, 1.0f, color_get(1.0f, 0.0f, 0.0f));
+    polygon_set_position(app->triangle, vector_get(-3.0f, 0.5f));
+    polygon_adjust_linear_velocity(app->triangle, vector_get(1.0f, 0.0f));
 
-    for(int i = 0; i < app->polygon_count; i++)
-    {
-        app->polygon[i] = polygon_create_regular(3 + rand() % 6, 1.0f, color_get((rand() % 11) / 10.0f, (rand() % 11) / 10.0f, (rand() %11) / 10.0f));
-        polygon_adjust_linear_velocity(app->polygon[i], vector_get((rand() % 11 - 5) / 10.0f, (rand() % 11 - 5) / 10.0f));
-        polygon_adjust_angular_velocity(app->polygon[i], (rand() % 11 - 5) / 10.0f);
-    }
+    app->square = polygon_create_regular(4, 1.0f, color_get(0.0f, 0.0f, 1.0f));
+    polygon_set_position(app->square, vector_get(3.0f, -0.5f));
+    polygon_adjust_linear_velocity(app->square, vector_get(-1.0f, 0.0f));
 
     return app;
 }
 
 void app_destroy(App *app)
 {
-    int i;
-    for(i = 0; i < app->polygon_count; i++)
-    {
-        polygon_destroy(app->polygon[i]);
-        app->polygon[i] = NULL;
-    }
+    polygon_destroy(app->triangle);
+    app->triangle = NULL;
 
-    free(app->polygon);
-    app->polygon = NULL;
-
-    app->polygon_count = 0;
+    polygon_destroy(app->square);
+    app->square = NULL;
 
     camera_destroy(app->camera);
     app->camera = NULL;
@@ -111,6 +104,9 @@ void app_run(App *app)
         app_input(app);
         app_update(app, delta_time);
         app_draw(app);
+
+        if(delta_time < 1 / 60.0f)
+            stopwatch_delay(app->stopwatch, 1 / 60.0f - delta_time);
     }
 }
 
@@ -122,16 +118,21 @@ static void app_input(App *app)
 
 static void app_update(App *app, float delta_time)
 {
-    for(int i = 0; i < app->polygon_count; i++)
-        polygon_update(app->polygon[i], delta_time);
+    polygon_update(app->triangle, delta_time);
+    polygon_update(app->square, delta_time);
+
+    if(collision_check(app->triangle, app->square))
+        polygon_set_color(app->triangle, color_get(1.0f, 1.0f, 1.0f));
+    else
+        polygon_set_color(app->triangle, color_get(1.0f, 0.0f, 0.0f));
 
     camera_update(app->camera);
 }
 
 static void app_draw(App *app)
 {
-    for(int i = 0; i < app->polygon_count; i++)
-        renderer_submit(app->renderer, app->polygon[i]);
+    renderer_submit(app->renderer, app->triangle);
+    renderer_submit(app->renderer, app->square);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);
