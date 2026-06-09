@@ -21,6 +21,8 @@
 #include <polygon_collider/shader.h>
 #include <polygon_collider/camera.h>
 #include <polygon_collider/polygon.h>
+#include <polygon_collider/vector.h>
+#include <polygon_collider/color.h>
 
 #include <glad/gl.h>
 
@@ -31,14 +33,15 @@
 struct Renderer
 {
     unsigned int shader_program;
-    unsigned int matrix_location, color_location;
+    unsigned int matrix_location;
 
     unsigned int vertex_array;
 
-    unsigned int vertex_buffer, index_buffer;
+    unsigned int vertex_position_buffer, vertex_color_buffer, index_buffer;
     unsigned int vertex_count, index_count;
 
-    Vector vertex_data[VERTEX_BUFFER_SIZE];
+    Vector vertex_position_data[VERTEX_BUFFER_SIZE];
+    Color vertex_color_data[VERTEX_BUFFER_SIZE];
     unsigned int index_data[INDEX_BUFFER_SIZE];
 
     float matrix[16];
@@ -50,23 +53,27 @@ Renderer *renderer_create()
 
     renderer->shader_program = shader_create_program("glsl/vertex_shader.glsl", "glsl/fragment_shader.glsl");
     renderer->matrix_location = glGetUniformLocation(renderer->shader_program, "matrix");
-    renderer->color_location = glGetUniformLocation(renderer->shader_program, "color");
 
     glGenVertexArrays(1, &renderer->vertex_array);
-    glGenBuffers(1, &renderer->vertex_buffer);
+    glGenBuffers(1, &renderer->vertex_position_buffer);
+    glGenBuffers(1, &renderer->vertex_color_buffer);
     glGenBuffers(1, &renderer->index_buffer);
 
     glUseProgram(renderer->shader_program);
     glBindVertexArray(renderer->vertex_array);
 
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_position_buffer);
     glBufferData(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE * sizeof(Vector), NULL, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_color_buffer);
+    glBufferData(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE * sizeof(Color), NULL, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, false, 3 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderer->index_buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE * sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
 
     return renderer;
 }
@@ -76,13 +83,15 @@ void renderer_destroy(Renderer *renderer)
     glDeleteProgram(renderer->shader_program);
     renderer->shader_program = 0;
     renderer->matrix_location = 0;
-    renderer->color_location = 0;
 
     glDeleteVertexArrays(1, &renderer->vertex_array);
     renderer->vertex_array = 0;
 
-    glDeleteBuffers(1, &renderer->vertex_buffer);
-    renderer->vertex_buffer = 0;
+    glDeleteBuffers(1, &renderer->vertex_position_buffer);
+    renderer->vertex_position_buffer = 0;
+
+    glDeleteBuffers(1, &renderer->vertex_color_buffer);
+    renderer->vertex_color_buffer = 0;
 
     glDeleteBuffers(1, &renderer->index_buffer);
     renderer->index_buffer = 0;
@@ -91,7 +100,7 @@ void renderer_destroy(Renderer *renderer)
     renderer->index_count = 0;
 
     for(int i = 0; i < VERTEX_BUFFER_SIZE; i++)
-        renderer->vertex_data[i].x = renderer->vertex_data[i].y = 0.0f;
+        renderer->vertex_position_data[i].x = renderer->vertex_position_data[i].y = 0.0f;
 
     for(int i = 0; i < INDEX_BUFFER_SIZE; i++)
         renderer->index_data[i] = 0;
@@ -107,7 +116,12 @@ void renderer_submit(Renderer* renderer, Polygon *polygon)
     unsigned int delta_triangle_count = delta_vertex_count - 2;
     unsigned int delta_index_count = 3 * delta_triangle_count;
 
-    polygon_copy_world_vertex(polygon, renderer->vertex_data + renderer->vertex_count);
+    polygon_copy_world_vertex(polygon, renderer->vertex_position_data + initial_vertex);
+
+    Color color = polygon_get_color(polygon);
+    for(int i = initial_vertex; i < initial_vertex + delta_vertex_count; i++)
+        renderer->vertex_color_data[i] = color;
+
     renderer->vertex_count += delta_vertex_count;
 
     for(int i = 0; i < delta_triangle_count; i++)
@@ -124,13 +138,16 @@ void renderer_flush(Renderer *renderer, Camera *camera)
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vertex_count * sizeof(Vector), renderer->vertex_data);
+    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_position_buffer);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vertex_count * sizeof(Vector), renderer->vertex_position_data);
+
+    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_color_buffer);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vertex_count * sizeof(Color), renderer->vertex_color_data);
+
     glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, renderer->index_count * sizeof(unsigned int), renderer->index_data);
 
     camera_copy_matrix(camera, renderer->matrix);
     glUniformMatrix4fv(renderer->matrix_location, 1, true, renderer->matrix);
-
-    glUniform3f(renderer->color_location, 1.0f, 1.0f, 1.0f);
 
     glDrawElements(GL_TRIANGLES, renderer->index_count, GL_UNSIGNED_INT, 0);
 
