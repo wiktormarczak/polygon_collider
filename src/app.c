@@ -41,7 +41,9 @@ struct App
     unsigned int polygon_count;
     Polygon *triangle, *square;
 
-    bool open;
+    bool open, freeze;
+
+    Vector contact_point, axis;
 };
 
 static void app_input(App *app);
@@ -61,11 +63,11 @@ App *app_create()
     app->camera = camera_create((float)800 / (float)600);
 
     app->triangle = polygon_create_regular(3, 1.0f, color_get(1.0f, 0.0f, 0.0f));
-    polygon_set_position(app->triangle, vector_get(-3.0f, 0.5f));
+    polygon_set_position(app->triangle, vector_get(-3.0f, 0.4f));
     polygon_adjust_linear_velocity(app->triangle, vector_get(1.0f, 0.0f));
 
     app->square = polygon_create_regular(4, 1.0f, color_get(0.0f, 0.0f, 1.0f));
-    polygon_set_position(app->square, vector_get(3.0f, -0.5f));
+    polygon_set_position(app->square, vector_get(3.0f, -0.4f));
     polygon_adjust_linear_velocity(app->square, vector_get(-1.0f, 0.0f));
 
     return app;
@@ -97,12 +99,13 @@ void app_destroy(App *app)
 void app_run(App *app)
 {
     app->open = true;
+    app->freeze = false;
     while(app->open)
     {
         float delta_time = stopwatch_get_delta(app->stopwatch);
 
         app_input(app);
-        app_update(app, delta_time);
+        if(!app->freeze) app_update(app, delta_time);
         app_draw(app);
 
         if(delta_time < 1 / 60.0f)
@@ -121,11 +124,8 @@ static void app_update(App *app, float delta_time)
     polygon_update(app->triangle, delta_time);
     polygon_update(app->square, delta_time);
 
-    Vector contact_point, axis;
-    if(collision_check(app->triangle, app->square, &contact_point, &axis))
-        polygon_set_color(app->triangle, color_get(1.0f, 1.0f, 1.0f));
-    else
-        polygon_set_color(app->triangle, color_get(1.0f, 0.0f, 0.0f));
+    if(collision_check(app->triangle, app->square, &app->contact_point, &app->axis))
+        app->freeze = true;
 
     camera_update(app->camera);
 }
@@ -135,10 +135,8 @@ static void app_draw(App *app)
     renderer_submit_polygon(app->renderer, app->triangle);
     renderer_submit_polygon(app->renderer, app->square);
 
-    Vector position = vector_get(0.0f, 0.0f);
-    Vector direction = vector_get(1.0f, 1.0f);
     Color color = color_get(1.0f, 1.0f, 1.0f);
-    renderer_submit_vector(app->renderer, position, direction, color);
+    renderer_submit_vector(app->renderer, app->contact_point, app->axis, color);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);
