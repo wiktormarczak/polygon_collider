@@ -5,7 +5,7 @@
 
 typedef struct Window Window;
 
-Window *window_create();
+Window *window_create(const char *title, const int width, const int height);
 void window_destroy(Window *window);
 
 bool window_was_closed(Window *window);
