@@ -17,6 +17,9 @@ struct Polygon
     Vector position;
     float orientation;
 
+    float linear_mass;
+    float angular_mass;
+
     Vector linear_velocity;
     float angular_velocity;
 
@@ -38,6 +41,9 @@ Polygon *polygon_create(unsigned int vertex_count, Vector *vertex, Color color)
     polygon->position.x = 0.0f;
     polygon->position.y = 0.0f;
     polygon->orientation = 0.0f;
+
+    polygon->linear_mass = 1.0f;
+    polygon->angular_mass = 1.0f;
 
     polygon->linear_velocity.x = 0.0f;
     polygon->linear_velocity.y = 0.0f;
@@ -135,5 +141,14 @@ void polygon_update(Polygon *polygon, float delta_time)
     }
 }
 
-void polygon_apply_impulse(Polygon *polygon, Vector impulse);
+void polygon_apply_impulse(Polygon *polygon, Vector position, Vector impulse)
+{
+    Vector delta_linear_velocity = vector_get_scaled(impulse, 1.0f / polygon->linear_mass);
+    polygon->linear_velocity = vector_get_sum(polygon->linear_velocity, delta_linear_velocity);
+
+    Vector local_position = vector_get_difference(position, polygon->position);
+    float delta_angular_velocity = vector_get_cross_product(local_position, impulse) / polygon->angular_mass;
+    polygon->angular_velocity += delta_angular_velocity;
+}
+
 void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a, float *b);

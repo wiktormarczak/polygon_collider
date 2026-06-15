@@ -23,7 +23,7 @@ void polygon_set_color(Polygon *polygon, Color color);
 
 void polygon_update(Polygon *polygon, float delta_time);
 
-void polygon_apply_impulse(Polygon *polygon, Vector impulse);
+void polygon_apply_impulse(Polygon *polygon, Vector position, Vector impulse);
 void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a, float *b);
 
 #endif
