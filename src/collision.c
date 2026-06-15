@@ -41,14 +41,15 @@ bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destin
     float overlap = overlap_left;
     Vector contact_point = contact_point_left;
     Vector axis = axis_left;
+
     if(overlap_right < overlap)
     {
         overlap = overlap_right;
         contact_point = contact_point_right;
-        axis = axis_right;
+        axis = vector_get_negated(axis_right);
     }
 
-    if(overlap_right < 0.0)
+    if(overlap <= 0.0)
         return false;
 
     *contact_point_destination = contact_point;
@@ -91,7 +92,7 @@ static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, 
     }
 
     *contact_point_destination = min_contact_point;
-    *axis_destination = min_axis;
+    *axis_destination = vector_get_negated(min_axis);
     return min_overlap;
 }
 

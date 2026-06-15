@@ -25,6 +25,7 @@
 #include <polygon_collider/polygon.h>
 #include <polygon_collider/vector.h>
 #include <polygon_collider/color.h>
+#include <polygon_collider/batch.h>
 
 #include <glad/gl.h>
 
@@ -37,25 +38,7 @@ struct Renderer
     unsigned int shader_program;
     unsigned int matrix_location;
 
-    /* Polygons */
-    unsigned int vertex_array;
-
-    unsigned int vertex_position_buffer, vertex_color_buffer, index_buffer;
-
-    unsigned int vertex_count, index_count;
-    Vector vertex_position_data[VERTEX_BUFFER_SIZE];
-    Color vertex_color_data[VERTEX_BUFFER_SIZE];
-    unsigned int index_data[INDEX_BUFFER_SIZE];
-
-    /* Vectors */
-    unsigned int vector_vertex_array;
-
-    unsigned int vector_vertex_position_buffer, vector_vertex_color_buffer, vector_index_buffer;
-
-    unsigned int vector_vertex_count, vector_index_count;
-    Vector vector_vertex_position_data[VECTOR_VERTEX_BUFFER_SIZE];
-    Color vector_vertex_color_data[VECTOR_VERTEX_BUFFER_SIZE];
-    unsigned int vector_index_data[VECTOR_INDEX_BUFFER_SIZE];
+    Batch *polygon_batch, *vector_batch;
 
     float matrix[16];
 };
@@ -68,54 +51,8 @@ Renderer *renderer_create()
     renderer->matrix_location = glGetUniformLocation(renderer->shader_program, "matrix");
 
     glUseProgram(renderer->shader_program);
-
-    /* Polygons */
-    glGenVertexArrays(1, &renderer->vertex_array);
-    glGenBuffers(1, &renderer->vertex_position_buffer);
-    glGenBuffers(1, &renderer->vertex_color_buffer);
-    glGenBuffers(1, &renderer->index_buffer);
-
-    glBindVertexArray(renderer->vertex_array);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_position_buffer);
-    glBufferData(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE * sizeof(Vector), NULL, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_color_buffer);
-    glBufferData(GL_ARRAY_BUFFER, VERTEX_BUFFER_SIZE * sizeof(Color), NULL, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderer->index_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDEX_BUFFER_SIZE * sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
-
-    renderer->vertex_count = 0;
-    renderer->index_count = 0;
-
-    /* Vectors */
-    glGenVertexArrays(1, &renderer->vector_vertex_array);
-    glGenBuffers(1, &renderer->vector_vertex_position_buffer);
-    glGenBuffers(1, &renderer->vector_vertex_color_buffer);
-    glGenBuffers(1, &renderer->vector_index_buffer);
-
-    glBindVertexArray(renderer->vector_vertex_array);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vector_vertex_position_buffer);
-    glBufferData(GL_ARRAY_BUFFER, VECTOR_VERTEX_BUFFER_SIZE * sizeof(Vector), NULL, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vector_vertex_color_buffer);
-    glBufferData(GL_ARRAY_BUFFER, VECTOR_VERTEX_BUFFER_SIZE * sizeof(Color), NULL, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderer->vector_index_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, VECTOR_INDEX_BUFFER_SIZE * sizeof(unsigned int), NULL, GL_DYNAMIC_DRAW);
-
-    renderer->vector_vertex_count = 0;
-    renderer->vector_index_count = 0;
+    renderer->polygon_batch = batch_create(VERTEX_BUFFER_SIZE, INDEX_BUFFER_SIZE);
+    renderer->vector_batch = batch_create(VECTOR_VERTEX_BUFFER_SIZE, VECTOR_INDEX_BUFFER_SIZE);
 
     return renderer;
 }
@@ -126,108 +63,23 @@ void renderer_destroy(Renderer *renderer)
     renderer->shader_program = 0;
     renderer->matrix_location = 0;
 
-    glDeleteVertexArrays(1, &renderer->vertex_array);
-    renderer->vertex_array = 0;
+    batch_destroy(renderer->polygon_batch);
+    renderer->polygon_batch = NULL;
 
-    glDeleteBuffers(1, &renderer->vertex_position_buffer);
-    renderer->vertex_position_buffer = 0;
-
-    glDeleteBuffers(1, &renderer->vertex_color_buffer);
-    renderer->vertex_color_buffer = 0;
-
-    glDeleteBuffers(1, &renderer->index_buffer);
-    renderer->index_buffer = 0;
-
-    renderer->vertex_count = 0;
-    renderer->index_count = 0;
-
-    for(int i = 0; i < VERTEX_BUFFER_SIZE; i++)
-        renderer->vertex_position_data[i].x = renderer->vertex_position_data[i].y = 0.0f;
-
-    for(int i = 0; i < INDEX_BUFFER_SIZE; i++)
-        renderer->index_data[i] = 0;
-
-    glDeleteVertexArrays(1, &renderer->vector_vertex_array);
-    renderer->vector_vertex_array = 0;
-
-    glDeleteBuffers(1, &renderer->vector_vertex_position_buffer);
-    renderer->vector_vertex_position_buffer = 0;
-
-    glDeleteBuffers(1, &renderer->vector_vertex_color_buffer);
-    renderer->vector_vertex_color_buffer = 0;
-
-    glDeleteBuffers(1, &renderer->vector_index_buffer);
-    renderer->vector_index_buffer = 0;
-
-    renderer->vector_vertex_count = 0;
-    renderer->vector_index_count = 0;
-
-    for(int i = 0; i < VECTOR_VERTEX_BUFFER_SIZE; i++)
-        renderer->vector_vertex_position_data[i].x = renderer->vector_vertex_position_data[i].y = 0.0f;
-
-    for(int i = 0; i < VECTOR_INDEX_BUFFER_SIZE; i++)
-        renderer->vector_index_data[i] = 0;
+    batch_destroy(renderer->vector_batch);
+    renderer->vector_batch = NULL;
 
     free(renderer);
 }
 
 void renderer_submit_polygon(Renderer* renderer, Polygon *polygon)
 {
-    unsigned int initial_vertex = renderer->vertex_count;
-    unsigned int initial_index = renderer->index_count;
-    unsigned int delta_vertex_count = polygon_get_vertex_count(polygon);
-    unsigned int delta_triangle_count = delta_vertex_count - 2;
-    unsigned int delta_index_count = 3 * delta_triangle_count;
-
-    polygon_copy_world_vertex(polygon, renderer->vertex_position_data + initial_vertex);
-
-    Color color = polygon_get_color(polygon);
-    for(int i = initial_vertex; i < initial_vertex + delta_vertex_count; i++)
-        renderer->vertex_color_data[i] = color;
-
-    renderer->vertex_count += delta_vertex_count;
-
-    for(int i = 0; i < delta_triangle_count; i++)
-    {
-        renderer->index_data[initial_index + 3 * i] = initial_vertex;
-        renderer->index_data[initial_index + 3 * i + 1] = initial_vertex + i + 1;
-        renderer->index_data[initial_index + 3 * i + 2] = initial_vertex + i + 2;
-    }
-
-    renderer->index_count += delta_index_count;
+    batch_submit_polygon(renderer->polygon_batch, polygon);
 }
 
 void renderer_submit_vector(Renderer* renderer, Vector position, Vector direction, Color color)
 {
-    unsigned int initial_vertex = renderer->vector_vertex_count;
-    unsigned int initial_index = renderer->vector_index_count;
-    unsigned int delta_vertex_count = 4;
-    unsigned int delta_index_count = 5;
-
-    Vector initial_point = position;
-    Vector terminal_point = vector_get_sum(position, direction);
-    Vector u = vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, 3.1416f * 0.9f)), 0.2f);
-    Vector v = vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, -3.1416f * 0.9f)), 0.2f);
-    Vector left_tip_point = vector_get_sum(terminal_point, u);
-    Vector right_tip_point = vector_get_sum(terminal_point, v);
-
-    renderer->vector_vertex_position_data[initial_vertex] = initial_point;
-    renderer->vector_vertex_position_data[initial_vertex + 1] = terminal_point;
-    renderer->vector_vertex_position_data[initial_vertex + 2] = left_tip_point;
-    renderer->vector_vertex_position_data[initial_vertex + 3] = right_tip_point;
-
-    for(int i = initial_vertex; i < initial_vertex + delta_vertex_count; i++)
-        renderer->vector_vertex_color_data[i] = color;
-
-    renderer->vector_vertex_count += delta_vertex_count;
-
-    renderer->vector_index_data[initial_index] = initial_vertex;
-    renderer->vector_index_data[initial_index + 1] = initial_vertex + 1;
-    renderer->vector_index_data[initial_index + 2] = initial_vertex + 2;
-    renderer->vector_index_data[initial_index + 3] = initial_vertex + 3;
-    renderer->vector_index_data[initial_index + 4] = initial_vertex + 1;
-
-    renderer->vector_index_count += delta_index_count;
+    batch_submit_vector(renderer->vector_batch, position, direction, color);
 }
 
 void renderer_flush(Renderer *renderer, Camera *camera)
@@ -237,33 +89,11 @@ void renderer_flush(Renderer *renderer, Camera *camera)
     camera_copy_matrix(camera, renderer->matrix);
     glUniformMatrix4fv(renderer->matrix_location, 1, true, renderer->matrix);
 
-    glBindVertexArray(renderer->vertex_array);
+    batch_use(renderer->polygon_batch);
+    batch_draw_polygons(renderer->polygon_batch);
+    batch_flush(renderer->polygon_batch);
 
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_position_buffer);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vertex_count * sizeof(Vector), renderer->vertex_position_data);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vertex_color_buffer);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vertex_count * sizeof(Color), renderer->vertex_color_data);
-
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, renderer->index_count * sizeof(unsigned int), renderer->index_data);
-
-    glDrawElements(GL_TRIANGLES, renderer->index_count, GL_UNSIGNED_INT, 0);
-
-    renderer->vertex_count = 0;
-    renderer->index_count = 0;
-
-    glBindVertexArray(renderer->vector_vertex_array);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vector_vertex_position_buffer);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vector_vertex_count * sizeof(Vector), renderer->vector_vertex_position_data);
-
-    glBindBuffer(GL_ARRAY_BUFFER, renderer->vector_vertex_color_buffer);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, renderer->vector_vertex_count * sizeof(Color), renderer->vector_vertex_color_data);
-
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, renderer->vector_index_count * sizeof(unsigned int), renderer->vector_index_data);
-
-    glDrawElements(GL_LINE_STRIP, renderer->vector_index_count, GL_UNSIGNED_INT, 0);
-
-    renderer->vector_vertex_count = 0;
-    renderer->vector_index_count = 0;
+    batch_use(renderer->vector_batch);
+    batch_draw_vectors(renderer->vector_batch);
+    batch_flush(renderer->vector_batch);
 }

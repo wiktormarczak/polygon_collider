@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -64,6 +64,7 @@ App *app_create()
 
     app->triangle = polygon_create_regular(3, 1.0f, color_get(1.0f, 0.0f, 0.0f));
     polygon_set_position(app->triangle, vector_get(-3.0f, 0.4f));
+    polygon_set_orientation(app->triangle, 0.4f);
     polygon_adjust_linear_velocity(app->triangle, vector_get(1.0f, 0.0f));
 
     app->square = polygon_create_regular(4, 1.0f, color_get(0.0f, 0.0f, 1.0f));

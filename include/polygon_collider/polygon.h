@@ -16,10 +16,14 @@ Color polygon_get_color(Polygon *polygon);
 void polygon_copy_world_vertex(Polygon *polygon, Vector *destination);
 
 void polygon_set_position(Polygon *polygon, Vector position);
+void polygon_set_orientation(Polygon *polygon, float orientation);
 void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta);
 void polygon_adjust_angular_velocity(Polygon *polygon, float delta);
 void polygon_set_color(Polygon *polygon, Color color);
 
 void polygon_update(Polygon *polygon, float delta_time);
+
+void polygon_apply_impulse(Polygon *polygon, Vector impulse);
+void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a, float *b);
 
 #endif

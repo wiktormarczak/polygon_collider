@@ -95,6 +95,11 @@ void polygon_set_position(Polygon *polygon, Vector position)
     polygon->position = position;
 }
 
+void polygon_set_orientation(Polygon *polygon, float orientation)
+{
+    polygon->orientation = orientation;
+}
+
 void polygon_adjust_linear_velocity(Polygon *polygon, Vector delta)
 {
     polygon->linear_velocity.x += delta.x;
@@ -129,3 +134,6 @@ void polygon_update(Polygon *polygon, float delta_time)
         polygon->world_vertex[i].y = x * s + y * c + polygon->position.y;
     }
 }
+
+void polygon_apply_impulse(Polygon *polygon, Vector impulse);
+void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a, float *b);

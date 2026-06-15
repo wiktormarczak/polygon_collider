@@ -45,6 +45,13 @@ Vector vector_get_perpendicular(Vector vector)
     return perpendicular;
 }
 
+Vector vector_get_negated(Vector vector)
+{
+    vector.x = -vector.x;
+    vector.y = -vector.y;
+    return vector;
+}
+
 Vector vector_get_scaled(Vector vector, float scalar)
 {
     vector.x *= scalar;
@@ -77,6 +84,11 @@ Vector vector_get_difference(Vector left, Vector right)
 float vector_get_dot_product(Vector left, Vector right)
 {
     return left.x * right.x + left.y * right.y;
+}
+
+float vector_get_cross_product(Vector left, Vector right)
+{
+    return left.x * right.y - left.y * right.x;
 }
 
 Vector vector_get_normal(Vector left, Vector right)
