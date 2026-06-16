@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 struct Polygon
 {
@@ -176,7 +177,8 @@ void polygon_apply_impulse(Polygon *polygon, Vector position, Vector impulse)
 
 void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a_destination, float *b_destination)
 {
-    float base_torque = vector_get_cross_product(collision_position, collision_direction);
+    Vector local_position = vector_get_difference(collision_position, polygon->position);
+    float base_torque = vector_get_cross_product(local_position, collision_direction);
     *a_destination = 1.0f / (2.0f * polygon->linear_mass) + base_torque * base_torque / (2.0f * polygon->angular_mass);
     *b_destination = vector_get_dot_product(collision_direction, polygon->linear_velocity) + base_torque * polygon->angular_velocity;
 }
