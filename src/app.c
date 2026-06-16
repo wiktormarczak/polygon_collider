@@ -38,8 +38,7 @@ struct App
     Renderer *renderer;
     Camera *camera;
 
-    unsigned int polygon_count;
-    Polygon *triangle, *square;
+    Polygon *polygon;
 
     bool open, freeze;
 
@@ -62,24 +61,15 @@ App *app_create()
     app->renderer = renderer_create();
     app->camera = camera_create((float)800 / (float)600);
 
-    app->triangle = polygon_create_regular(3, 1.0f, color_get(1.0f, 0.0f, 0.0f));
-    polygon_set_position(app->triangle, vector_get(-3.0f, 0.4f));
-    polygon_set_orientation(app->triangle, 0.4f);
-    polygon_apply_impulse(app->triangle, vector_get(-3.0f, 0.7f), vector_get(1.0f, 0.0f));
-
-    app->square = polygon_create_regular(4, 1.0f, color_get(0.0f, 0.0f, 1.0f));
-    polygon_set_position(app->square, vector_get(3.0f, -0.4f));
+    app->polygon = polygon_create_regular(3, 5.0f, color_get(1.0f, 0.0f, 0.0f));
 
     return app;
 }
 
 void app_destroy(App *app)
 {
-    polygon_destroy(app->triangle);
-    app->triangle = NULL;
-
-    polygon_destroy(app->square);
-    app->square = NULL;
+    polygon_destroy(app->polygon);
+    app->polygon = NULL;
 
     camera_destroy(app->camera);
     app->camera = NULL;
@@ -121,23 +111,14 @@ static void app_input(App *app)
 
 static void app_update(App *app, float delta_time)
 {
-    polygon_update(app->triangle, delta_time);
-    polygon_update(app->square, delta_time);
-
-    if(collision_check(app->triangle, app->square, &app->contact_point, &app->axis))
-        app->freeze = true;
+    polygon_update(app->polygon, delta_time);
 
     camera_update(app->camera);
 }
 
 static void app_draw(App *app)
 {
-    renderer_submit_polygon(app->renderer, app->triangle);
-    renderer_submit_polygon(app->renderer, app->square);
-
-    Color color = color_get(1.0f, 1.0f, 1.0f);
-    renderer_submit_vector(app->renderer, vector_get(-3.0f, 0.7f), vector_get(1.0f, 0.0f), color);
-    // renderer_submit_vector(app->renderer, app->contact_point, app->axis, color);
+    renderer_submit_polygon(app->renderer, app->polygon);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);

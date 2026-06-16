@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or

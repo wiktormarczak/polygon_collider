@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -14,12 +14,17 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef COLLISION_H
-#define COLLISION_H
+#ifndef LINE_H
+#define LINE_H
 
-#include <polygon_collider/polygon.h>
+#include <polygon_collider/vector.h>
 
-bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
-bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex);
+typedef struct
+{
+    float slope, intercept;
+} Line;
+
+Line line_get(float slope, float intercept);
+Line line_get_from_points(Vector left, Vector right);
 
 #endif

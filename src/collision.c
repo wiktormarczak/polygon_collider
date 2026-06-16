@@ -26,6 +26,7 @@ typedef struct
 } CollisionBox;
 
 static CollisionBox *collision_box_create(Polygon *polygon);
+static void collision_box_destroy(CollisionBox *collision_box);
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
 static float collision_get_projection_min(Vector axis, CollisionBox *collision_box, Vector *contact_point_destination);
 
@@ -57,6 +58,21 @@ bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destin
     return true;
 }
 
+bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex)
+{
+    for(int i = 0; i < vertex_count; i++)
+    {
+        Vector axis = vector_get_normal(vertex[i], vertex[(i + 1) % vertex_count]);
+        float point_value = vector_get_dot_product(axis, point);
+        float polygon_value = vector_get_dot_product(axis, vertex[i]);
+
+        if(point_value > polygon_value)
+            return false;
+    }
+
+    return true;
+}
+
 static CollisionBox *collision_box_create(Polygon *polygon)
 {
     CollisionBox *collision_box = malloc(sizeof(CollisionBox));
@@ -66,6 +82,17 @@ static CollisionBox *collision_box_create(Polygon *polygon)
     polygon_copy_world_vertex(polygon, collision_box->vertex);
 
     return collision_box;
+}
+
+static void collision_box_destroy(CollisionBox *collision_box)
+{
+    collision_box->vertex_count = 0;
+
+    free(collision_box->vertex);
+    collision_box->vertex = NULL;
+
+    free(collision_box);
+    collision_box = NULL;
 }
 
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination)

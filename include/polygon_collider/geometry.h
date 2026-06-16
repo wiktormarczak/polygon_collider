@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -14,12 +14,15 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef COLLISION_H
-#define COLLISION_H
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
 
-#include <polygon_collider/polygon.h>
+#include <polygon_collider/vector.h>
 
-bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
-bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex);
+float geometry_get_linear_mass(unsigned int vertex_count, Vector *vertex);
+float geometry_get_linear_mass_brutally(unsigned int vertex_count, Vector *vertex);
+
+float geometry_get_angular_mass(unsigned int vertex_count, Vector *vertex);
+float geometry_get_angular_mass_brutally(unsigned int vertex_count, Vector *vertex);
 
 #endif
