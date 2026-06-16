@@ -28,6 +28,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 
 struct App
@@ -38,7 +39,7 @@ struct App
     Renderer *renderer;
     Camera *camera;
 
-    Polygon *polygon;
+    Polygon *polygon_left, *polygon_right;
 
     bool open, freeze;
 
@@ -61,15 +62,26 @@ App *app_create()
     app->renderer = renderer_create();
     app->camera = camera_create((float)800 / (float)600);
 
-    app->polygon = polygon_create_regular(3, 5.0f, color_get(1.0f, 0.0f, 0.0f));
+    app->polygon_left = polygon_create_regular(4, 2.0f, color_get(0.0f, 0.0f, 1.0f));
+    polygon_set_orientation(app->polygon_left, 3.14f / 4.0f);
+    polygon_set_position(app->polygon_left, vector_get(-5.0f, -1.0f));
+    polygon_adjust_linear_velocity(app->polygon_left, vector_get(1.0f, 0.0f));
+
+    app->polygon_right = polygon_create_regular(4, 2.0f, color_get(0.0f, 1.0f, 0.0f));
+    polygon_set_orientation(app->polygon_right, 3.14f / 4.0f);
+    polygon_set_position(app->polygon_right, vector_get(5.0f, 1.0f));
+    polygon_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
 
     return app;
 }
 
 void app_destroy(App *app)
 {
-    polygon_destroy(app->polygon);
-    app->polygon = NULL;
+    polygon_destroy(app->polygon_left);
+    app->polygon_left = NULL;
+
+    polygon_destroy(app->polygon_right);
+    app->polygon_right = NULL;
 
     camera_destroy(app->camera);
     app->camera = NULL;
@@ -111,14 +123,36 @@ static void app_input(App *app)
 
 static void app_update(App *app, float delta_time)
 {
-    polygon_update(app->polygon, delta_time);
+    polygon_update(app->polygon_left, delta_time);
+    polygon_update(app->polygon_right, delta_time);
+
+    if(collision_check(app->polygon_left, app->polygon_right, &app->contact_point, &app->axis))
+    {
+        float a_left, b_left, a_right, b_right;
+        polygon_copy_collision_parameters(app->polygon_left, app->contact_point, app->axis, &a_left, &b_left);
+        polygon_copy_collision_parameters(app->polygon_right, app->contact_point, vector_get_negated(app->axis), &a_right, &b_right);
+
+        float a = a_left + a_right;
+        float b = b_left + b_right;
+
+        float impulse = -b / a;
+        polygon_apply_impulse(app->polygon_left, app->contact_point, vector_get_scaled(app->axis, impulse));
+        polygon_apply_impulse(app->polygon_right, app->contact_point, vector_get_scaled(app->axis, -impulse));
+    }
+
+    float left_energy = polygon_get_energy(app->polygon_left);
+    float right_energy = polygon_get_energy(app->polygon_right);
+    float energy = left_energy + right_energy;
+    printf("Total energy: %f\n", energy);
 
     camera_update(app->camera);
 }
 
 static void app_draw(App *app)
 {
-    renderer_submit_polygon(app->renderer, app->polygon);
+    renderer_submit_polygon(app->renderer, app->polygon_left);
+    renderer_submit_polygon(app->renderer, app->polygon_right);
+    renderer_submit_vector(app->renderer, app->contact_point, app->axis, color_get(1.0f, 1.0f, 1.0f));
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);

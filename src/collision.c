@@ -30,6 +30,10 @@ static void collision_box_destroy(CollisionBox *collision_box);
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
 static float collision_get_projection_min(Vector axis, CollisionBox *collision_box, Vector *contact_point_destination);
 
+void collision_handle(Polygon *left, Polygon *right)
+{
+}
+
 bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
 {
     CollisionBox *collision_box_left = collision_box_create(left);

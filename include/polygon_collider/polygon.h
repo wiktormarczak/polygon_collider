@@ -14,6 +14,7 @@ void polygon_destroy(Polygon *polygon);
 unsigned int polygon_get_vertex_count(Polygon *polygon);
 Color polygon_get_color(Polygon *polygon);
 void polygon_copy_world_vertex(Polygon *polygon, Vector *destination);
+float polygon_get_energy(Polygon *polygon);
 
 void polygon_set_position(Polygon *polygon, Vector position);
 void polygon_set_orientation(Polygon *polygon, float orientation);

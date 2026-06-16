@@ -108,6 +108,12 @@ Color polygon_get_color(Polygon *polygon)
     return polygon->color;
 }
 
+float polygon_get_energy(Polygon *polygon)
+{
+    float speed = vector_get_length(polygon->linear_velocity);
+    return 0.5f * polygon->linear_mass * speed * speed + 0.5f * polygon->angular_mass * polygon->angular_velocity * polygon->angular_velocity;
+}
+
 void polygon_copy_world_vertex(Polygon *polygon, Vector *destination)
 {
     memcpy(destination, polygon->world_vertex, polygon->vertex_count * sizeof(Vector));
@@ -168,4 +174,9 @@ void polygon_apply_impulse(Polygon *polygon, Vector position, Vector impulse)
     polygon->angular_velocity += delta_angular_velocity;
 }
 
-void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a, float *b);
+void polygon_copy_collision_parameters(Polygon *polygon, Vector collision_position, Vector collision_direction, float *a_destination, float *b_destination)
+{
+    float base_torque = vector_get_cross_product(collision_position, collision_direction);
+    *a_destination = 1.0f / (2.0f * polygon->linear_mass) + base_torque * base_torque / (2.0f * polygon->angular_mass);
+    *b_destination = vector_get_dot_product(collision_direction, polygon->linear_velocity) + base_torque * polygon->angular_velocity;
+}
