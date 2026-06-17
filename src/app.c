@@ -64,12 +64,12 @@ App *app_create()
 
     app->polygon_left = polygon_create_regular(4, 2.0f, color_get(0.0f, 0.0f, 1.0f));
     polygon_set_orientation(app->polygon_left, 3.14f / 4.0f);
-    polygon_set_position(app->polygon_left, vector_get(-5.0f, 0.0f));
+    polygon_set_position(app->polygon_left, vector_get(-2.0f, 0.0f));
     polygon_adjust_linear_velocity(app->polygon_left, vector_get(1.0f, 0.0f));
 
     app->polygon_right = polygon_create_regular(4, 2.0f, color_get(0.0f, 1.0f, 0.0f));
-    polygon_set_orientation(app->polygon_right, 0.0f);
-    polygon_set_position(app->polygon_right, vector_get(5.0f, 1.0f));
+    polygon_set_orientation(app->polygon_right, 3.14f / 4.0f);
+    polygon_set_position(app->polygon_right, vector_get(2.0f, 1.0f));
     polygon_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
 
     return app;
@@ -128,25 +128,32 @@ static void app_update(App *app, float delta_time)
 
     if(collision_check(app->polygon_left, app->polygon_right, &app->contact_point, &app->axis))
     {
+        polygon_translate(app->polygon_left, app->axis);
+        app->axis = vector_get_normalized(app->axis);
+
         float a_left, b_left, a_right, b_right;
         polygon_copy_collision_parameters(app->polygon_left, app->contact_point, app->axis, &a_left, &b_left);
         polygon_copy_collision_parameters(app->polygon_right, app->contact_point, vector_get_negated(app->axis), &a_right, &b_right);
 
-        // printf("Right parameters: %f %f\n", a_right, b_right);
+        printf("Contact point: %f %f\n", app->contact_point.x, app->contact_point.y);
 
         float a = a_left + a_right;
         float b = b_left + b_right;
 
         float impulse = -b / a;
-        // printf("Impulse: %f\n", impulse);
         polygon_apply_impulse(app->polygon_left, app->contact_point, vector_get_scaled(app->axis, impulse));
         polygon_apply_impulse(app->polygon_right, app->contact_point, vector_get_scaled(app->axis, -impulse));
+        printf("Impulse: %f\n", impulse);
+
+        printf("Angular velocity: %f\n", polygon_get_angular_velocity(app->polygon_right));
+
+        // app->freeze = true;
     }
 
     float left_energy = polygon_get_energy(app->polygon_left);
     float right_energy = polygon_get_energy(app->polygon_right);
     float energy = left_energy + right_energy;
-    printf("Total energy: %f\n", energy);
+    // printf("Total energy: %f\n", energy);
 
     camera_update(app->camera);
 }

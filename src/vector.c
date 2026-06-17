@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -79,6 +79,11 @@ Vector vector_get_difference(Vector left, Vector right)
     left.x -= right.x;
     left.y -= right.y;
     return left;
+}
+
+Vector vector_get_average(Vector left, Vector right)
+{
+    return vector_get_scaled(vector_get_sum(left, right), 0.5f);
 }
 
 float vector_get_dot_product(Vector left, Vector right)

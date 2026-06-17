@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -16,8 +16,10 @@
 
 #include <polygon_collider/collision.h>
 #include <polygon_collider/vector.h>
+#include <polygon_collider/edge.h>
 #include <float.h>
 #include <stdlib.h>
+#include <math.h>
 
 typedef struct
 {
@@ -28,7 +30,7 @@ typedef struct
 static CollisionBox *collision_box_create(Polygon *polygon);
 static void collision_box_destroy(CollisionBox *collision_box);
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
-static float collision_get_projection_min(Vector axis, CollisionBox *collision_box, Vector *contact_point_destination);
+static float collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination);
 
 void collision_handle(Polygon *left, Polygon *right)
 {
@@ -45,13 +47,13 @@ bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destin
 
     float overlap = overlap_left;
     Vector contact_point = contact_point_left;
-    Vector axis = axis_left;
+    Vector axis = vector_get_scaled(axis_left, overlap_left);
 
     if(overlap_right < overlap)
     {
         overlap = overlap_right;
         contact_point = contact_point_right;
-        axis = vector_get_negated(axis_right);
+        axis = vector_get_scaled(axis_right, -overlap_right);
     }
 
     if(overlap <= 0.0)
@@ -110,7 +112,7 @@ static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, 
 
         Vector contact_point;
         float left_max = vector_get_dot_product(axis, left->vertex[i]);
-        float right_min = collision_get_projection_min(axis, right, &contact_point);
+        float right_min = collision_get_projection_min(axis, edge_get(left->vertex[i], left->vertex[(i + 1) % left->vertex_count]), right, &contact_point);
 
         float overlap = left_max - right_min;
 
@@ -127,20 +129,64 @@ static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, 
     return min_overlap;
 }
 
-static float collision_get_projection_min(Vector axis, CollisionBox *collision_box, Vector *contact_point_destination)
+static float collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination)
 {
     float min = FLT_MAX;
-    Vector contact_point;
+    Vector contact_point_1, contact_point_2;
+    bool db = false;
 
     for(int i = 0; i < collision_box->vertex_count; i++)
     {
         float value = vector_get_dot_product(axis, collision_box->vertex[i]);
 
+        if(fabs(value - min) < 0.01f)
+        {
+            contact_point_2 = collision_box->vertex[i];
+            db = true;
+            continue;
+        }
+
         if(value < min)
         {
             min = value;
-            contact_point = collision_box->vertex[i];
+            contact_point_1 = collision_box->vertex[i];
+            db = false;
+            continue;
         }
+    }
+
+    Vector contact_point = contact_point_1;
+
+    if(db)
+    {
+        Vector point[4];
+        point[0] = edge.initial_point;
+        point[1] = edge.terminal_point;
+        point[2] = contact_point_1;
+        point[3] = contact_point_2;
+
+        for(int i = 0; i < 4; i++)
+        {
+            float min_v = FLT_MAX;
+            unsigned int min_j = -1;
+
+            for(int j = i; j < 4; j++)
+            {
+                float v = vector_get_cross_product(axis, point[j]);
+
+                if(v < min_v)
+                {
+                    min_v = v;
+                    min_j = j;
+                }
+            }
+
+            Vector buffer = point[i];
+            point[i] = point[min_j];
+            point[min_j] = buffer;
+        }
+
+        contact_point = vector_get_average(point[1], point[2]);
     }
 
     *contact_point_destination = contact_point;

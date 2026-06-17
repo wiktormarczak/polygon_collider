@@ -14,31 +14,16 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef EDGE_H
+#define EDGE_H
+
+#include <polygon_collider/vector.h>
 
 typedef struct
 {
-    float x, y;
-} Vector;
+    Vector initial_point, terminal_point;
+} Edge;
 
-Vector vector_get(float x, float y);
-
-float vector_get_length(Vector vector);
-
-Vector vector_get_normalized(Vector vector);
-Vector vector_get_perpendicular(Vector vector);
-Vector vector_get_negated(Vector vector);
-
-Vector vector_get_scaled(Vector vector, float scalar);
-Vector vector_get_rotated(Vector vector, float angle);
-
-Vector vector_get_sum(Vector left, Vector right);
-Vector vector_get_difference(Vector left, Vector right);
-Vector vector_get_average(Vector left, Vector right);
-float vector_get_dot_product(Vector left, Vector right);
-float vector_get_cross_product(Vector left, Vector right);
-
-Vector vector_get_normal(Vector left, Vector right);
+Edge edge_get(Vector initial_point, Vector terminal_point);
 
 #endif

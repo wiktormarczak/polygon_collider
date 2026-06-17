@@ -115,6 +115,11 @@ float polygon_get_energy(Polygon *polygon)
     return 0.5f * polygon->linear_mass * speed * speed + 0.5f * polygon->angular_mass * polygon->angular_velocity * polygon->angular_velocity;
 }
 
+float polygon_get_angular_velocity(Polygon *polygon)
+{
+    return polygon->angular_velocity;
+}
+
 void polygon_copy_world_vertex(Polygon *polygon, Vector *destination)
 {
     memcpy(destination, polygon->world_vertex, polygon->vertex_count * sizeof(Vector));
@@ -123,6 +128,11 @@ void polygon_copy_world_vertex(Polygon *polygon, Vector *destination)
 void polygon_set_position(Polygon *polygon, Vector position)
 {
     polygon->position = position;
+}
+
+void polygon_translate(Polygon *polygon, Vector translation)
+{
+    polygon->position = vector_get_sum(polygon->position, translation);
 }
 
 void polygon_set_orientation(Polygon *polygon, float orientation)
