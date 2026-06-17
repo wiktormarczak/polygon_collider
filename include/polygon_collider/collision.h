@@ -19,7 +19,7 @@
 
 #include <polygon_collider/polygon.h>
 
-void collision_handle(Polygon *left, Polygon *right);
+bool collision_handle(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
 bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
 bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex);
 

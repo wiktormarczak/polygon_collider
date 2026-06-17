@@ -20,6 +20,7 @@
 #include <float.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
 typedef struct
 {
@@ -32,8 +33,26 @@ static void collision_box_destroy(CollisionBox *collision_box);
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
 static float collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination);
 
-void collision_handle(Polygon *left, Polygon *right)
+bool collision_handle(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
 {
+    if(!collision_check(left, right, contact_point_destination, axis_destination))
+        return false;
+
+    polygon_translate(left, *axis_destination);
+    *axis_destination = vector_get_normalized(*axis_destination);
+
+    float a_left, b_left, a_right, b_right;
+    polygon_copy_collision_parameters(left, *contact_point_destination, *axis_destination, &a_left, &b_left);
+    polygon_copy_collision_parameters(right, *contact_point_destination, vector_get_negated(*axis_destination), &a_right, &b_right);
+
+    float a = a_left + a_right;
+    float b = b_left + b_right;
+
+    float impulse = -b / a;
+    polygon_apply_impulse(left, *contact_point_destination, vector_get_scaled(*axis_destination, impulse));
+    polygon_apply_impulse(right, *contact_point_destination, vector_get_scaled(*axis_destination, -impulse));
+
+    return true;
 }
 
 bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
