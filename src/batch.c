@@ -135,7 +135,7 @@ void batch_submit_vector(Batch *batch, Vector position, Vector direction, Color 
     unsigned int initial_vertex = batch->vertex_count;
     unsigned int initial_index = batch->index_count;
     unsigned int delta_vertex_count = 4;
-    unsigned int delta_index_count = 5;
+    unsigned int delta_index_count = 8;
 
     Vector initial_point = position;
     Vector terminal_point = vector_get_sum(position, direction);
@@ -156,9 +156,12 @@ void batch_submit_vector(Batch *batch, Vector position, Vector direction, Color 
 
     batch->index_data[initial_index] = initial_vertex;
     batch->index_data[initial_index + 1] = initial_vertex + 1;
-    batch->index_data[initial_index + 2] = initial_vertex + 2;
-    batch->index_data[initial_index + 3] = initial_vertex + 3;
-    batch->index_data[initial_index + 4] = initial_vertex + 1;
+    batch->index_data[initial_index + 2] = initial_vertex + 1;
+    batch->index_data[initial_index + 3] = initial_vertex + 2;
+    batch->index_data[initial_index + 4] = initial_vertex + 2;
+    batch->index_data[initial_index + 5] = initial_vertex + 3;
+    batch->index_data[initial_index + 6] = initial_vertex + 3;
+    batch->index_data[initial_index + 7] = initial_vertex + 1;
 
     batch->index_count += delta_index_count;
 }
@@ -183,7 +186,7 @@ void batch_draw_polygons(Batch *batch)
 
 void batch_draw_vectors(Batch *batch)
 {
-    glDrawElements(GL_LINE_STRIP, batch->index_count, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINES, batch->index_count, GL_UNSIGNED_INT, 0);
 }
 
 void batch_flush(Batch *batch)

@@ -42,8 +42,6 @@ struct App
     Polygon *polygon_left, *polygon_right;
 
     bool open, freeze;
-
-    Vector contact_point, axis;
 };
 
 static void app_input(App *app);
@@ -126,39 +124,7 @@ static void app_update(App *app, float delta_time)
     polygon_update(app->polygon_left, delta_time);
     polygon_update(app->polygon_right, delta_time);
 
-    // if(collision_check(app->polygon_left, app->polygon_right, &app->contact_point, &app->axis))
-    // {
-    //     polygon_translate(app->polygon_left, app->axis);
-    //     app->axis = vector_get_normalized(app->axis);
-    //
-    //     float a_left, b_left, a_right, b_right;
-    //     polygon_copy_collision_parameters(app->polygon_left, app->contact_point, app->axis, &a_left, &b_left);
-    //     polygon_copy_collision_parameters(app->polygon_right, app->contact_point, vector_get_negated(app->axis), &a_right, &b_right);
-    //
-    //     printf("Contact point: %f %f\n", app->contact_point.x, app->contact_point.y);
-    //
-    //     float a = a_left + a_right;
-    //     float b = b_left + b_right;
-    //
-    //     float impulse = -b / a;
-    //     polygon_apply_impulse(app->polygon_left, app->contact_point, vector_get_scaled(app->axis, impulse));
-    //     polygon_apply_impulse(app->polygon_right, app->contact_point, vector_get_scaled(app->axis, -impulse));
-    //     printf("Impulse: %f\n", impulse);
-    //
-    //     printf("Angular velocity: %f\n", polygon_get_angular_velocity(app->polygon_right));
-    //
-    //     // app->freeze = true;
-    // }
-
-    if(collision_handle(app->polygon_left, app->polygon_right, &app->contact_point, &app->axis))
-    {
-        app->freeze = false;
-    }
-
-    float left_energy = polygon_get_energy(app->polygon_left);
-    float right_energy = polygon_get_energy(app->polygon_right);
-    float energy = left_energy + right_energy;
-    // printf("Total energy: %f\n", energy);
+    collision_handle(app->polygon_left, app->polygon_right, NULL, NULL);
 
     camera_update(app->camera);
 }
@@ -167,7 +133,16 @@ static void app_draw(App *app)
 {
     renderer_submit_polygon(app->renderer, app->polygon_left);
     renderer_submit_polygon(app->renderer, app->polygon_right);
-    renderer_submit_vector(app->renderer, app->contact_point, app->axis, color_get(1.0f, 1.0f, 1.0f));
+
+    Vector position_left = vector_get(-1.0f, 0.0f);
+    Vector direction_left = vector_get(-1.0f, 1.0f);
+    Vector position_right = vector_get(1.0f, 0.0f);
+    Vector direction_right = vector_get(1.0f, -1.0f);
+    Color red = color_get(1.0f, 0.0f, 0.0f);
+    Color yellow = color_get(1.0f, 1.0f, 0.0f);
+
+    renderer_submit_vector(app->renderer, position_left, direction_left, red);
+    renderer_submit_vector(app->renderer, position_right, direction_right, yellow);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);

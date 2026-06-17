@@ -35,22 +35,29 @@ static float collision_get_projection_min(Vector axis, Edge edge, CollisionBox *
 
 bool collision_handle(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
 {
-    if(!collision_check(left, right, contact_point_destination, axis_destination))
+    Vector contact_point, axis;
+    if(!collision_check(left, right, &contact_point, &axis))
         return false;
 
-    polygon_translate(left, *axis_destination);
-    *axis_destination = vector_get_normalized(*axis_destination);
+    polygon_translate(left, axis);
+    axis = vector_get_normalized(axis);
 
     float a_left, b_left, a_right, b_right;
-    polygon_copy_collision_parameters(left, *contact_point_destination, *axis_destination, &a_left, &b_left);
-    polygon_copy_collision_parameters(right, *contact_point_destination, vector_get_negated(*axis_destination), &a_right, &b_right);
+    polygon_copy_collision_parameters(left, contact_point, axis, &a_left, &b_left);
+    polygon_copy_collision_parameters(right, contact_point, vector_get_negated(axis), &a_right, &b_right);
 
     float a = a_left + a_right;
     float b = b_left + b_right;
 
     float impulse = -b / a;
-    polygon_apply_impulse(left, *contact_point_destination, vector_get_scaled(*axis_destination, impulse));
-    polygon_apply_impulse(right, *contact_point_destination, vector_get_scaled(*axis_destination, -impulse));
+    polygon_apply_impulse(left, contact_point, vector_get_scaled(axis, impulse));
+    polygon_apply_impulse(right, contact_point, vector_get_scaled(axis, -impulse));
+
+    if(contact_point_destination != NULL)
+        *contact_point_destination = contact_point;
+
+    if(axis_destination != NULL)
+        *axis_destination = axis;
 
     return true;
 }
