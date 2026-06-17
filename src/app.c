@@ -62,13 +62,13 @@ App *app_create()
     app->renderer = renderer_create();
     app->camera = camera_create((float)800 / (float)600);
 
-    app->polygon_left = polygon_create_regular(4, 2.0f, color_get(0.0f, 0.0f, 1.0f));
+    app->polygon_left = polygon_create_regular(3, 2.0f, color_get(0.0f, 0.0f, 1.0f));
     polygon_set_orientation(app->polygon_left, 3.14f / 4.0f);
     polygon_set_position(app->polygon_left, vector_get(-2.0f, 0.0f));
     polygon_adjust_linear_velocity(app->polygon_left, vector_get(1.0f, 0.0f));
 
-    app->polygon_right = polygon_create_regular(4, 2.0f, color_get(0.0f, 1.0f, 0.0f));
-    polygon_set_orientation(app->polygon_right, 3.14f / 4.0f);
+    app->polygon_right = polygon_create_regular(4, 1.5f, color_get(0.0f, 1.0f, 0.0f));
+    polygon_set_orientation(app->polygon_right, 3.14f / 2.0f);
     polygon_set_position(app->polygon_right, vector_get(2.0f, 1.0f));
     polygon_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
 
