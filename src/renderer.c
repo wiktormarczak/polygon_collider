@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -14,11 +14,6 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#define VERTEX_BUFFER_SIZE 100
-#define INDEX_BUFFER_SIZE 300
-#define VECTOR_VERTEX_BUFFER_SIZE 50
-#define VECTOR_INDEX_BUFFER_SIZE 100
-
 #include <polygon_collider/renderer.h>
 #include <polygon_collider/shader.h>
 #include <polygon_collider/camera.h>
@@ -26,6 +21,7 @@
 #include <polygon_collider/vector.h>
 #include <polygon_collider/color.h>
 #include <polygon_collider/batch.h>
+#include <polygon_collider/edge.h>
 
 #include <glad/gl.h>
 
@@ -38,7 +34,7 @@ struct Renderer
     unsigned int shader_program;
     unsigned int matrix_location;
 
-    Batch *polygon_batch, *vector_batch;
+    Batch *polygon_batch, *vector_edge_batch, *vector_tip_batch;
 
     float matrix[16];
 };
@@ -51,8 +47,9 @@ Renderer *renderer_create()
     renderer->matrix_location = glGetUniformLocation(renderer->shader_program, "matrix");
 
     glUseProgram(renderer->shader_program);
-    renderer->polygon_batch = batch_create(VERTEX_BUFFER_SIZE, INDEX_BUFFER_SIZE);
-    renderer->vector_batch = batch_create(VECTOR_VERTEX_BUFFER_SIZE, VECTOR_INDEX_BUFFER_SIZE);
+    renderer->polygon_batch = batch_create(100, 300);
+    renderer->vector_edge_batch = batch_create(300, 0);
+    renderer->vector_tip_batch = batch_create(200, 0);
 
     return renderer;
 }
@@ -66,8 +63,11 @@ void renderer_destroy(Renderer *renderer)
     batch_destroy(renderer->polygon_batch);
     renderer->polygon_batch = NULL;
 
-    batch_destroy(renderer->vector_batch);
-    renderer->vector_batch = NULL;
+    batch_destroy(renderer->vector_edge_batch);
+    renderer->vector_edge_batch = NULL;
+
+    batch_destroy(renderer->vector_tip_batch);
+    renderer->vector_tip_batch = NULL;
 
     free(renderer);
 }
@@ -79,7 +79,19 @@ void renderer_submit_polygon(Renderer* renderer, Polygon *polygon)
 
 void renderer_submit_vector(Renderer* renderer, Vector position, Vector direction, Color color)
 {
-    batch_submit_vector(renderer->vector_batch, position, direction, color);
+    const float tip_width = 0.1f, tip_length = 0.2f;
+
+    Edge edge;
+    edge.initial_point = position;
+    edge.terminal_point = vector_get_sum(position, direction);
+
+    Vector tip[3];
+    tip[0] = edge.terminal_point;
+    tip[1] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, 3.14f * (1.0f - tip_width))), tip_length));
+    tip[2] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, -3.14f * (1.0f - tip_width))), tip_length));
+
+    batch_submit_edge(renderer->vector_edge_batch, edge, color);
+    batch_submit_triangle(renderer->vector_tip_batch, tip, color);
 }
 
 void renderer_flush(Renderer *renderer, Camera *camera)
@@ -93,7 +105,11 @@ void renderer_flush(Renderer *renderer, Camera *camera)
     batch_draw_polygons(renderer->polygon_batch);
     batch_flush(renderer->polygon_batch);
 
-    batch_use(renderer->vector_batch);
-    batch_draw_vectors(renderer->vector_batch);
-    batch_flush(renderer->vector_batch);
+    batch_use(renderer->vector_edge_batch);
+    batch_draw_edges(renderer->vector_edge_batch);
+    batch_flush(renderer->vector_edge_batch);
+
+    batch_use(renderer->vector_tip_batch);
+    batch_draw_triangles(renderer->vector_tip_batch);
+    batch_flush(renderer->vector_tip_batch);
 }
