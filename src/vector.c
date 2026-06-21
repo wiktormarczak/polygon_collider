@@ -59,6 +59,11 @@ Vector vector_get_scaled(Vector vector, float scalar)
     return vector;
 }
 
+Vector vector_get_resized(Vector vector, float size)
+{
+    return vector_get_scaled(vector_get_normalized(vector), size);
+}
+
 Vector vector_get_rotated(Vector vector, float angle)
 {
     Vector rotated;

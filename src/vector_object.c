@@ -61,6 +61,6 @@ void vector_object_copy_tip(VectorObject *vector_object, Vector *tip_destination
     Vector head = vector_get_sum(vector_object->position, vector_object->vector);
 
     tip_destination[0] = head;
-    tip_destination[1] = vector_get_sum(head, vector_get_scaled(vector_get_normalized(vector_get_rotated(vector_object->vector, 3.14f * (1.0f - tip_width))), tip_length));
-    tip_destination[2] = vector_get_sum(head, vector_get_scaled(vector_get_normalized(vector_get_rotated(vector_object->vector, -3.14f * (1.0f - tip_width))), tip_length));
+    tip_destination[1] = vector_get_sum(head, vector_get_resized(vector_get_rotated(vector_object->vector, 3.14f * (1.0f - tip_width)), tip_length));
+    tip_destination[2] = vector_get_sum(head, vector_get_resized(vector_get_rotated(vector_object->vector, -3.14f * (1.0f - tip_width)), tip_length));
 }

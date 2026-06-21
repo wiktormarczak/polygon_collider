@@ -22,9 +22,9 @@ typedef struct Stopwatch Stopwatch;
 Stopwatch *stopwatch_create();
 void stopwatch_destroy(Stopwatch *stopwatch);
 
-float stopwatch_get_delta(Stopwatch *stopwatch);
-void stopwatch_refresh(Stopwatch *stopwatch);
+float stopwatch_measure(Stopwatch *stopwatch);
+void stopwatch_reset(Stopwatch *stopwatch);
 
-void stopwatch_delay(Stopwatch *stopwatch, float time);
+void stopwatch_wait(Stopwatch *stopwatch, float time);
 
 #endif

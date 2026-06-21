@@ -31,6 +31,7 @@ Vector vector_get_perpendicular(Vector vector);
 Vector vector_get_negated(Vector vector);
 
 Vector vector_get_scaled(Vector vector, float scalar);
+Vector vector_get_resized(Vector vector, float size);
 Vector vector_get_rotated(Vector vector, float angle);
 
 Vector vector_get_sum(Vector left, Vector right);

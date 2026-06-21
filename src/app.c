@@ -121,14 +121,16 @@ void app_run(App *app)
     app->freeze = false;
     while(app->open)
     {
-        float delta_time = stopwatch_get_delta(app->stopwatch);
+        float delta_time = stopwatch_measure(app->stopwatch);
+        stopwatch_reset(app->stopwatch);
 
         app_input(app);
         if(!app->freeze) app_update(app, delta_time);
         app_draw(app);
 
-        if(delta_time < 1 / 60.0f)
-            stopwatch_delay(app->stopwatch, 1 / 60.0f - delta_time);
+        float curr_time = stopwatch_measure(app->stopwatch);
+        if(curr_time < 1 / 60.0f)
+            stopwatch_wait(app->stopwatch, 1 / 60.0f - curr_time);
     }
 }
 
@@ -153,8 +155,8 @@ static void app_draw(App *app)
     renderer_submit_polygon(app->renderer, app->polygon_left);
     renderer_submit_polygon(app->renderer, app->polygon_right);
 
-    renderer_submit_vector(app->renderer, app->vector_left);
-    renderer_submit_vector(app->renderer, app->vector_right);
+    // renderer_submit_vector(app->renderer, app->vector_left);
+    // renderer_submit_vector(app->renderer, app->vector_right);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);

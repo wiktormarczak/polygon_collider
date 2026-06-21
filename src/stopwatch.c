@@ -37,20 +37,18 @@ void stopwatch_destroy(Stopwatch *stopwatch)
     free(stopwatch);
 }
 
-float stopwatch_get_delta(Stopwatch *stopwatch)
+float stopwatch_measure(Stopwatch *stopwatch)
 {
     float curr_time = (float)SDL_GetTicks() / 1000.0f;
-    float delta_time = curr_time - stopwatch->prev_time;
-    stopwatch->prev_time = curr_time;
-    return delta_time;
+    return curr_time - stopwatch->prev_time;
 }
 
-void stopwatch_refresh(Stopwatch *stopwatch)
+void stopwatch_reset(Stopwatch *stopwatch)
 {
     stopwatch->prev_time = (float)SDL_GetTicks() / 1000.0f;
 }
 
-void stopwatch_delay(Stopwatch *stopwatch, float time)
+void stopwatch_wait(Stopwatch *stopwatch, float time)
 {
     SDL_Delay(time * 1000);
 }
