@@ -77,18 +77,21 @@ void renderer_submit_polygon(Renderer* renderer, Polygon *polygon)
     batch_submit_polygon(renderer->polygon_batch, polygon);
 }
 
-void renderer_submit_vector(Renderer* renderer, Vector position, Vector direction, Color color)
+void renderer_submit_vector(Renderer* renderer, VectorObject *vector)
 {
     const float tip_width = 0.1f, tip_length = 0.2f;
 
-    Edge edge;
-    edge.initial_point = position;
-    edge.terminal_point = vector_get_sum(position, direction);
+    Color color = vector_object_get_color(vector);
+
+    Edge edge = vector_object_get_edge(vector);
 
     Vector tip[3];
-    tip[0] = edge.terminal_point;
-    tip[1] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, 3.14f * (1.0f - tip_width))), tip_length));
-    tip[2] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, -3.14f * (1.0f - tip_width))), tip_length));
+    vector_object_copy_tip(vector, tip);
+
+    // Vector tip[3];
+    // tip[0] = edge.terminal_point;
+    // tip[1] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, 3.14f * (1.0f - tip_width))), tip_length));
+    // tip[2] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, -3.14f * (1.0f - tip_width))), tip_length));
 
     batch_submit_edge(renderer->vector_edge_batch, edge, color);
     batch_submit_triangle(renderer->vector_tip_batch, tip, color);

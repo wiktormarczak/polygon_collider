@@ -25,6 +25,7 @@
 #include <polygon_collider/camera.h>
 #include <polygon_collider/polygon.h>
 #include <polygon_collider/collision.h>
+#include <polygon_collider/vector_object.h>
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -40,6 +41,8 @@ struct App
     Camera *camera;
 
     Polygon *polygon_left, *polygon_right;
+
+    VectorObject *vector_left, *vector_right;
 
     bool open, freeze;
 };
@@ -70,6 +73,16 @@ App *app_create()
     polygon_set_position(app->polygon_right, vector_get(2.0f, 1.0f));
     polygon_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
 
+    app->vector_left = vector_object_create();
+    vector_object_set_position(app->vector_left, vector_get(-2.0f, 0.0f));
+    vector_object_set_vector(app->vector_left, vector_get(1.0f, 1.0f));
+    vector_object_set_color(app->vector_left, color_get(1.0f, 1.0f, 0.0f));
+
+    app->vector_right = vector_object_create();
+    vector_object_set_position(app->vector_right, vector_get(2.0f, 0.0f));
+    vector_object_set_vector(app->vector_right, vector_get(-1.0f, 1.0f));
+    vector_object_set_color(app->vector_right, color_get(1.0f, 0.0f, 0.0f));
+
     return app;
 }
 
@@ -92,6 +105,12 @@ void app_destroy(App *app)
 
     window_destroy(app->window);
     app->window = NULL;
+
+    vector_object_destroy(app->vector_left);
+    app->vector_left = NULL;
+
+    vector_object_destroy(app->vector_right);
+    app->vector_right = NULL;
 
     free(app);
 }
@@ -134,15 +153,8 @@ static void app_draw(App *app)
     renderer_submit_polygon(app->renderer, app->polygon_left);
     renderer_submit_polygon(app->renderer, app->polygon_right);
 
-    Vector position_left = vector_get(-1.0f, 0.0f);
-    Vector direction_left = vector_get(-1.0f, 1.0f);
-    Vector position_right = vector_get(1.0f, 0.0f);
-    Vector direction_right = vector_get(1.0f, -1.0f);
-    Color red = color_get(1.0f, 0.0f, 0.0f);
-    Color yellow = color_get(1.0f, 1.0f, 0.0f);
-
-    renderer_submit_vector(app->renderer, position_left, direction_left, red);
-    renderer_submit_vector(app->renderer, position_right, direction_right, yellow);
+    renderer_submit_vector(app->renderer, app->vector_left);
+    renderer_submit_vector(app->renderer, app->vector_right);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);
