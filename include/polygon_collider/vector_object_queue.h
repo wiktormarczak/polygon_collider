@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -14,14 +14,19 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef COLLISION_H
-#define COLLISION_H
+#ifndef VECTOR_OBJECT_QUEUE_H
+#define VECTOR_OBJECT_QUEUE_H
 
-#include <polygon_collider/polygon.h>
-#include <polygon_collider/vector_object_queue.h>
+#include <polygon_collider/vector_object.h>
+#include <polygon_collider/renderer.h>
 
-bool collision_handle(Polygon *left, Polygon *right, VectorObjectQueue *vector_object_queue);
-bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
-bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex);
+typedef struct VectorObjectQueue VectorObjectQueue;
+
+VectorObjectQueue *vector_object_queue_create();
+void vector_object_queue_destroy(VectorObjectQueue *vector_object_queue);
+
+void vector_object_queue_submit_vector(VectorObjectQueue *vector_object_queue, VectorObject *vector_object);
+void vector_object_queue_update(VectorObjectQueue *vector_object_queue, float delta_time);
+void vector_object_queue_submit_to_renderer(VectorObjectQueue *vector_object_queue, Renderer *renderer);
 
 #endif

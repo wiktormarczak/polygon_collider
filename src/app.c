@@ -25,7 +25,7 @@
 #include <polygon_collider/camera.h>
 #include <polygon_collider/polygon.h>
 #include <polygon_collider/collision.h>
-#include <polygon_collider/vector_object.h>
+#include <polygon_collider/vector_object_queue.h>
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -42,7 +42,7 @@ struct App
 
     Polygon *polygon_left, *polygon_right;
 
-    VectorObject *vector_left, *vector_right;
+    VectorObjectQueue *vector_object_queue;
 
     bool open, freeze;
 };
@@ -73,21 +73,16 @@ App *app_create()
     polygon_set_position(app->polygon_right, vector_get(2.0f, 1.0f));
     polygon_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
 
-    app->vector_left = vector_object_create();
-    vector_object_set_position(app->vector_left, vector_get(-2.0f, 0.0f));
-    vector_object_set_vector(app->vector_left, vector_get(1.0f, 1.0f));
-    vector_object_set_color(app->vector_left, color_get(1.0f, 1.0f, 0.0f));
-
-    app->vector_right = vector_object_create();
-    vector_object_set_position(app->vector_right, vector_get(2.0f, 0.0f));
-    vector_object_set_vector(app->vector_right, vector_get(-1.0f, 1.0f));
-    vector_object_set_color(app->vector_right, color_get(1.0f, 0.0f, 0.0f));
+    app->vector_object_queue = vector_object_queue_create();
 
     return app;
 }
 
 void app_destroy(App *app)
 {
+    vector_object_queue_destroy(app->vector_object_queue);
+    app->vector_object_queue = NULL;
+
     polygon_destroy(app->polygon_left);
     app->polygon_left = NULL;
 
@@ -105,12 +100,6 @@ void app_destroy(App *app)
 
     window_destroy(app->window);
     app->window = NULL;
-
-    vector_object_destroy(app->vector_left);
-    app->vector_left = NULL;
-
-    vector_object_destroy(app->vector_right);
-    app->vector_right = NULL;
 
     free(app);
 }
@@ -145,7 +134,8 @@ static void app_update(App *app, float delta_time)
     polygon_update(app->polygon_left, delta_time);
     polygon_update(app->polygon_right, delta_time);
 
-    collision_handle(app->polygon_left, app->polygon_right, NULL, NULL);
+    collision_handle(app->polygon_left, app->polygon_right, app->vector_object_queue);
+    vector_object_queue_update(app->vector_object_queue, delta_time);
 
     camera_update(app->camera);
 }
@@ -155,8 +145,7 @@ static void app_draw(App *app)
     renderer_submit_polygon(app->renderer, app->polygon_left);
     renderer_submit_polygon(app->renderer, app->polygon_right);
 
-    // renderer_submit_vector(app->renderer, app->vector_left);
-    // renderer_submit_vector(app->renderer, app->vector_right);
+    vector_object_queue_submit_to_renderer(app->vector_object_queue, app->renderer);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);

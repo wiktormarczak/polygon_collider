@@ -33,7 +33,7 @@ static void collision_box_destroy(CollisionBox *collision_box);
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
 static float collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination);
 
-bool collision_handle(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
+bool collision_handle(Polygon *left, Polygon *right, VectorObjectQueue *vector_object_queue)
 {
     Vector contact_point, axis;
     if(!collision_check(left, right, &contact_point, &axis))
@@ -53,11 +53,19 @@ bool collision_handle(Polygon *left, Polygon *right, Vector *contact_point_desti
     polygon_apply_impulse(left, contact_point, vector_get_scaled(axis, impulse));
     polygon_apply_impulse(right, contact_point, vector_get_scaled(axis, -impulse));
 
-    if(contact_point_destination != NULL)
-        *contact_point_destination = contact_point;
+    VectorObject *vector_object_left = vector_object_create();
+    vector_object_set_vector(vector_object_left, axis);
+    vector_object_set_position(vector_object_left, contact_point);
+    vector_object_set_color(vector_object_left, polygon_get_color(right));
+    vector_object_queue_submit_vector(vector_object_queue, vector_object_left);
+    vector_object_left = NULL;
 
-    if(axis_destination != NULL)
-        *axis_destination = axis;
+    VectorObject *vector_object_right = vector_object_create();
+    vector_object_set_vector(vector_object_right, vector_get_negated(axis));
+    vector_object_set_position(vector_object_right, contact_point);
+    vector_object_set_color(vector_object_right, polygon_get_color(left));
+    vector_object_queue_submit_vector(vector_object_queue, vector_object_right);
+    vector_object_right = NULL;
 
     return true;
 }
