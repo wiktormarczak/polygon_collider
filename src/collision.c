@@ -1,6 +1,5 @@
 /* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
-
 /* Polygon Collider is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
@@ -27,6 +26,14 @@ typedef struct
     unsigned int vertex_count;
     Vector *vertex;
 } CollisionBox;
+
+typedef enum
+{
+    LEFT,
+    RIGHT,
+    BOTTOM,
+    TOP
+} Direction;
 
 static CollisionBox *collision_box_create(Polygon *polygon);
 static void collision_box_destroy(CollisionBox *collision_box);
@@ -68,6 +75,45 @@ bool collision_handle(Polygon *left, Polygon *right, VectorObjectQueue *vector_o
     vector_object_right = NULL;
 
     return true;
+}
+
+void collision_handle_with_wall(Polygon *polygon, VectorObjectQueue *vector_object_queue)
+{
+    const float bound[] = { -6.67f, 6.67f, -5.0f, 5.0f };
+    const Vector axis[] = { vector_get(1.0f, 0.0f), vector_get(-1.0f, 0.0f), vector_get(0.0f, 1.0f), vector_get(0.0f, -1.0f) };
+    const Edge edge[] = {
+        edge_get(vector_get(bound[LEFT], bound[BOTTOM]), vector_get(bound[LEFT], bound[TOP])),
+        edge_get(vector_get(bound[RIGHT], bound[BOTTOM]), vector_get(bound[RIGHT], bound[TOP])),
+        edge_get(vector_get(bound[LEFT], bound[BOTTOM]), vector_get(bound[RIGHT], bound[BOTTOM])),
+        edge_get(vector_get(bound[LEFT], bound[TOP]), vector_get(bound[RIGHT], bound[TOP]))
+    };
+
+    CollisionBox *collision_box = collision_box_create(polygon);
+
+    for(int i = 0; i < 4; i++)
+    {
+        Vector contact_point;
+        float polygon_value = collision_get_projection_min(axis[i], edge[i], collision_box, &contact_point);
+        float edge_value = -fabs(bound[i]);
+
+        if(polygon_value < edge_value)
+        {
+            polygon_translate(polygon, vector_get_scaled(axis[i], edge_value - polygon_value));
+
+            float a, b;
+            polygon_copy_collision_parameters(polygon, contact_point, axis[i], &a, &b);
+
+            float impulse = -b / a;
+            polygon_apply_impulse(polygon, contact_point, vector_get_scaled(axis[i], impulse));
+
+            VectorObject *vector_object = vector_object_create();
+            vector_object_set_vector(vector_object, axis[i]);
+            vector_object_set_position(vector_object, contact_point);
+            vector_object_set_color(vector_object, color_get(1.0f, 1.0f, 1.0f));
+            vector_object_queue_submit_vector(vector_object_queue, vector_object);
+            vector_object = NULL;
+        }
+    }
 }
 
 bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)

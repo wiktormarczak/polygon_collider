@@ -1,4 +1,4 @@
-/* Copyright 2026 Wiktor Marczak 
+/* Copyright 2026 Wiktor Marczak
  * This file is part of Polygon Collider. */
 
 /* Polygon Collider is free software: you can redistribute it and/or
@@ -21,6 +21,7 @@
 #include <polygon_collider/vector_object_queue.h>
 
 bool collision_handle(Polygon *left, Polygon *right, VectorObjectQueue *vector_object_queue);
+void collision_handle_with_wall(Polygon *polygon, VectorObjectQueue *vector_object_queue);
 bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
 bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex);
 
