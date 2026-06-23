@@ -35,49 +35,49 @@ typedef enum
     TOP
 } Direction;
 
-static CollisionBox *collision_box_create(Polygon *polygon);
+static CollisionBox *collision_box_create(PolygonObject *polygon);
 static void collision_box_destroy(CollisionBox *collision_box);
 static float collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
 static float collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination);
 
-bool collision_handle(Polygon *left, Polygon *right, VectorObjectQueue *vector_object_queue)
+bool collision_handle(PolygonObject *left, PolygonObject *right, VectorObjectQueue *vector_object_queue)
 {
     Vector contact_point, axis;
     if(!collision_check(left, right, &contact_point, &axis))
         return false;
 
-    polygon_translate(left, axis);
+    polygon_object_translate(left, axis);
     axis = vector_get_normalized(axis);
 
     float a_left, b_left, a_right, b_right;
-    polygon_copy_collision_parameters(left, contact_point, axis, &a_left, &b_left);
-    polygon_copy_collision_parameters(right, contact_point, vector_get_negated(axis), &a_right, &b_right);
+    polygon_object_copy_collision_parameters(left, contact_point, axis, &a_left, &b_left);
+    polygon_object_copy_collision_parameters(right, contact_point, vector_get_negated(axis), &a_right, &b_right);
 
     float a = a_left + a_right;
     float b = b_left + b_right;
 
     float impulse = -b / a;
-    polygon_apply_impulse(left, contact_point, vector_get_scaled(axis, impulse));
-    polygon_apply_impulse(right, contact_point, vector_get_scaled(axis, -impulse));
+    polygon_object_apply_impulse(left, contact_point, vector_get_scaled(axis, impulse));
+    polygon_object_apply_impulse(right, contact_point, vector_get_scaled(axis, -impulse));
 
     VectorObject *vector_object_left = vector_object_create();
     vector_object_set_vector(vector_object_left, axis);
     vector_object_set_position(vector_object_left, contact_point);
-    vector_object_set_color(vector_object_left, polygon_get_color(right));
+    vector_object_set_color(vector_object_left, polygon_object_get_color(right));
     vector_object_queue_submit_vector(vector_object_queue, vector_object_left);
     vector_object_left = NULL;
 
     VectorObject *vector_object_right = vector_object_create();
     vector_object_set_vector(vector_object_right, vector_get_negated(axis));
     vector_object_set_position(vector_object_right, contact_point);
-    vector_object_set_color(vector_object_right, polygon_get_color(left));
+    vector_object_set_color(vector_object_right, polygon_object_get_color(left));
     vector_object_queue_submit_vector(vector_object_queue, vector_object_right);
     vector_object_right = NULL;
 
     return true;
 }
 
-void collision_handle_with_wall(Polygon *polygon, VectorObjectQueue *vector_object_queue)
+void collision_handle_with_wall(PolygonObject *polygon, VectorObjectQueue *vector_object_queue)
 {
     const float bound[] = { -6.67f, 6.67f, -5.0f, 5.0f };
     const Vector axis[] = { vector_get(1.0f, 0.0f), vector_get(-1.0f, 0.0f), vector_get(0.0f, 1.0f), vector_get(0.0f, -1.0f) };
@@ -98,13 +98,13 @@ void collision_handle_with_wall(Polygon *polygon, VectorObjectQueue *vector_obje
 
         if(polygon_value < edge_value)
         {
-            polygon_translate(polygon, vector_get_scaled(axis[i], edge_value - polygon_value));
+            polygon_object_translate(polygon, vector_get_scaled(axis[i], edge_value - polygon_value));
 
             float a, b;
-            polygon_copy_collision_parameters(polygon, contact_point, axis[i], &a, &b);
+            polygon_object_copy_collision_parameters(polygon, contact_point, axis[i], &a, &b);
 
             float impulse = -b / a;
-            polygon_apply_impulse(polygon, contact_point, vector_get_scaled(axis[i], impulse));
+            polygon_object_apply_impulse(polygon, contact_point, vector_get_scaled(axis[i], impulse));
 
             VectorObject *vector_object = vector_object_create();
             vector_object_set_vector(vector_object, axis[i]);
@@ -116,7 +116,7 @@ void collision_handle_with_wall(Polygon *polygon, VectorObjectQueue *vector_obje
     }
 }
 
-bool collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
+bool collision_check(PolygonObject *left, PolygonObject *right, Vector *contact_point_destination, Vector *axis_destination)
 {
     CollisionBox *collision_box_left = collision_box_create(left);
     CollisionBox *collision_box_right = collision_box_create(right);
@@ -159,13 +159,13 @@ bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *
     return true;
 }
 
-static CollisionBox *collision_box_create(Polygon *polygon)
+static CollisionBox *collision_box_create(PolygonObject *polygon)
 {
     CollisionBox *collision_box = malloc(sizeof(CollisionBox));
 
-    collision_box->vertex_count = polygon_get_vertex_count(polygon);
+    collision_box->vertex_count = polygon_object_get_vertex_count(polygon);
     collision_box->vertex = malloc(collision_box->vertex_count * sizeof(Vector));
-    polygon_copy_world_vertex(polygon, collision_box->vertex);
+    polygon_object_copy_world_vertex(polygon, collision_box->vertex);
 
     return collision_box;
 }

@@ -23,7 +23,7 @@
 #include <polygon_collider/stopwatch.h>
 #include <polygon_collider/renderer.h>
 #include <polygon_collider/camera.h>
-#include <polygon_collider/polygon.h>
+#include <polygon_collider/polygon_object.h>
 #include <polygon_collider/collision.h>
 #include <polygon_collider/vector_object_queue.h>
 
@@ -40,7 +40,7 @@ struct App
     Renderer *renderer;
     Camera *camera;
 
-    Polygon *polygon_left, *polygon_right;
+    PolygonObject *polygon_left, *polygon_right;
 
     VectorObjectQueue *vector_object_queue;
 
@@ -63,15 +63,15 @@ App *app_create()
     app->renderer = renderer_create();
     app->camera = camera_create((float)800 / (float)600);
 
-    app->polygon_left = polygon_create_regular(3, 2.0f, color_get(0.0f, 0.0f, 1.0f));
-    polygon_set_orientation(app->polygon_left, 3.14f / 4.0f);
-    polygon_set_position(app->polygon_left, vector_get(-2.0f, 0.0f));
-    polygon_adjust_linear_velocity(app->polygon_left, vector_get(1.0f, 0.0f));
+    app->polygon_left = polygon_object_create_regular(3, 2.0f, color_get(0.0f, 0.0f, 1.0f));
+    polygon_object_set_orientation(app->polygon_left, 3.14f / 4.0f);
+    polygon_object_set_position(app->polygon_left, vector_get(-2.0f, 0.0f));
+    polygon_object_adjust_linear_velocity(app->polygon_left, vector_get(1.0f, 0.0f));
 
-    app->polygon_right = polygon_create_regular(4, 1.5f, color_get(0.0f, 1.0f, 0.0f));
-    polygon_set_orientation(app->polygon_right, 3.14f / 2.0f);
-    polygon_set_position(app->polygon_right, vector_get(2.0f, 1.0f));
-    polygon_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
+    app->polygon_right = polygon_object_create_regular(4, 1.5f, color_get(0.0f, 1.0f, 0.0f));
+    polygon_object_set_orientation(app->polygon_right, 3.14f / 2.0f);
+    polygon_object_set_position(app->polygon_right, vector_get(2.0f, 1.0f));
+    polygon_object_adjust_linear_velocity(app->polygon_right, vector_get(-1.0f, 0.0f));
 
     app->vector_object_queue = vector_object_queue_create();
 
@@ -83,10 +83,10 @@ void app_destroy(App *app)
     vector_object_queue_destroy(app->vector_object_queue);
     app->vector_object_queue = NULL;
 
-    polygon_destroy(app->polygon_left);
+    polygon_object_destroy(app->polygon_left);
     app->polygon_left = NULL;
 
-    polygon_destroy(app->polygon_right);
+    polygon_object_destroy(app->polygon_right);
     app->polygon_right = NULL;
 
     camera_destroy(app->camera);
@@ -131,8 +131,8 @@ static void app_input(App *app)
 
 static void app_update(App *app, float delta_time)
 {
-    polygon_update(app->polygon_left, delta_time);
-    polygon_update(app->polygon_right, delta_time);
+    polygon_object_update(app->polygon_left, delta_time);
+    polygon_object_update(app->polygon_right, delta_time);
 
     collision_handle_with_wall(app->polygon_left, app->vector_object_queue);
     collision_handle_with_wall(app->polygon_right, app->vector_object_queue);

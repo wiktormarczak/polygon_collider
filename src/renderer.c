@@ -17,7 +17,7 @@
 #include <polygon_collider/renderer.h>
 #include <polygon_collider/shader.h>
 #include <polygon_collider/camera.h>
-#include <polygon_collider/polygon.h>
+#include <polygon_collider/polygon_object.h>
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
 #include <polygon_collider/batch.h>
@@ -72,9 +72,9 @@ void renderer_destroy(Renderer *renderer)
     free(renderer);
 }
 
-void renderer_submit_polygon(Renderer* renderer, Polygon *polygon)
+void renderer_submit_polygon(Renderer* renderer, PolygonObject *polygon_object)
 {
-    batch_submit_polygon(renderer->polygon_batch, polygon);
+    batch_submit_polygon(renderer->polygon_batch, polygon_object);
 }
 
 void renderer_submit_vector(Renderer* renderer, VectorObject *vector)
@@ -87,11 +87,6 @@ void renderer_submit_vector(Renderer* renderer, VectorObject *vector)
 
     Vector tip[3];
     vector_object_copy_tip(vector, tip);
-
-    // Vector tip[3];
-    // tip[0] = edge.terminal_point;
-    // tip[1] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, 3.14f * (1.0f - tip_width))), tip_length));
-    // tip[2] = vector_get_sum(edge.terminal_point, vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, -3.14f * (1.0f - tip_width))), tip_length));
 
     batch_submit_edge(renderer->vector_edge_batch, edge, color);
     batch_submit_triangle(renderer->vector_tip_batch, tip, color);

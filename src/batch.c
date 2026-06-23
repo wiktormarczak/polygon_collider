@@ -104,17 +104,17 @@ void batch_destroy(Batch *batch)
     batch = NULL;
 }
 
-void batch_submit_polygon(Batch *batch, Polygon *polygon)
+void batch_submit_polygon(Batch *batch, PolygonObject *polygon)
 {
     unsigned int initial_vertex = batch->vertex_count;
     unsigned int initial_index = batch->index_count;
-    unsigned int delta_vertex_count = polygon_get_vertex_count(polygon);
+    unsigned int delta_vertex_count = polygon_object_get_vertex_count(polygon);
     unsigned int delta_triangle_count = delta_vertex_count - 2;
     unsigned int delta_index_count = 3 * delta_triangle_count;
 
-    polygon_copy_world_vertex(polygon, batch->vertex_position_data + initial_vertex);
+    polygon_object_copy_world_vertex(polygon, batch->vertex_position_data + initial_vertex);
 
-    Color color = polygon_get_color(polygon);
+    Color color = polygon_object_get_color(polygon);
     for(int i = initial_vertex; i < initial_vertex + delta_vertex_count; i++)
         batch->vertex_color_data[i] = color;
 

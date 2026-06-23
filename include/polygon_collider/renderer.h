@@ -17,7 +17,7 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <polygon_collider/polygon.h>
+#include <polygon_collider/polygon_object.h>
 #include <polygon_collider/camera.h>
 #include <polygon_collider/vector_object.h>
 
@@ -26,7 +26,7 @@ typedef struct Renderer Renderer;
 Renderer *renderer_create();
 void renderer_destroy(Renderer *renderer);
 
-void renderer_submit_polygon(Renderer* renderer, Polygon *polygon);
+void renderer_submit_polygon(Renderer* renderer, PolygonObject *polygon);
 void renderer_submit_vector(Renderer* renderer, VectorObject *vector);
 void renderer_flush(Renderer *renderer, Camera *camera);
 

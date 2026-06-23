@@ -17,7 +17,7 @@
 #ifndef BATCH_H
 #define BATCH_H
 
-#include <polygon_collider/polygon.h>
+#include <polygon_collider/polygon_object.h>
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/edge.h>
 
@@ -26,7 +26,7 @@ typedef struct Batch Batch;
 Batch *batch_create(unsigned int vertex_buffer_size, unsigned int index_buffer_size);
 void batch_destroy(Batch *batch);
 
-void batch_submit_polygon(Batch *batch, Polygon *polygon);
+void batch_submit_polygon(Batch *batch, PolygonObject *polygon_object);
 void batch_submit_edge(Batch *batch, Edge edge, Color color);
 void batch_submit_triangle(Batch *batch, Vector *triangle, Color color);
 
