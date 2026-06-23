@@ -14,7 +14,7 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <math.h>
 
 Vector vector_get(float x, float y)

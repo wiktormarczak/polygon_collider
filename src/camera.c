@@ -15,7 +15,7 @@
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
 #include <polygon_collider/camera.h>
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <string.h>
 #include <stdlib.h>
 

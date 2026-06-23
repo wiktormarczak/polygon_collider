@@ -17,7 +17,7 @@
 #define PI 3.1416f
 
 #include <polygon_collider/polygon.h>
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
 #include <polygon_collider/geometry.h>
 

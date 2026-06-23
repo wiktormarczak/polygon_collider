@@ -18,7 +18,7 @@
 #include <polygon_collider/shader.h>
 #include <polygon_collider/camera.h>
 #include <polygon_collider/polygon.h>
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
 #include <polygon_collider/batch.h>
 #include <polygon_collider/edge.h>

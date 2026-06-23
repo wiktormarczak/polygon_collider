@@ -17,7 +17,7 @@
 #ifndef EDGE_H
 #define EDGE_H
 
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 
 typedef struct
 {

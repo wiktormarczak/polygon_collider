@@ -14,7 +14,7 @@
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
 #include <polygon_collider/collision.h>
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/edge.h>
 #include <float.h>
 #include <stdlib.h>

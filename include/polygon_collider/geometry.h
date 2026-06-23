@@ -17,7 +17,7 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 
 float geometry_get_linear_mass(unsigned int vertex_count, Vector *vertex);
 float geometry_get_linear_mass_brutally(unsigned int vertex_count, Vector *vertex);

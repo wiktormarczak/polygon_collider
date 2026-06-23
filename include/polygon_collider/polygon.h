@@ -17,7 +17,7 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
 
 typedef struct Polygon Polygon;

@@ -17,7 +17,7 @@
 #ifndef LINE_H
 #define LINE_H
 
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 
 typedef struct
 {

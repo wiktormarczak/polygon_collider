@@ -15,7 +15,7 @@
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
 #include <polygon_collider/line.h>
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 
 Line line_get(float slope, float intercept)
 {

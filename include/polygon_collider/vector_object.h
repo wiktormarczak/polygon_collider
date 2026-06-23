@@ -17,7 +17,7 @@
 #ifndef VECTOR_OBJECT_H
 #define VECTOR_OBJECT_H
 
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
 #include <polygon_collider/edge.h>
 

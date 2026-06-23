@@ -18,7 +18,7 @@
 #define BATCH_H
 
 #include <polygon_collider/polygon.h>
-#include <polygon_collider/vector.h>
+#include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/edge.h>
 
 typedef struct Batch Batch;
