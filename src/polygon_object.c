@@ -17,6 +17,7 @@
 #define PI 3.1416f
 
 #include <polygon_collider/polygon_object.h>
+#include <polygon_collider/geometry/polygon.h>
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
 #include <polygon_collider/geometry.h>
@@ -74,20 +75,15 @@ PolygonObject *polygon_object_create(unsigned int vertex_count, Vector *vertex, 
 
 PolygonObject *polygon_object_create_regular(unsigned int vertex_count, float radius, Color color)
 {
-    if(vertex_count < 3)
-        return NULL;
-
+    Polygon *polygon = polygon_create_regular(vertex_count, radius);
     Vector *vertex = malloc(vertex_count * sizeof(Vector));
-
-    float delta_angle = (2.0f * PI) / vertex_count;
-    for(int i = 0; i < vertex_count; i++)
-    {
-        vertex[i].x = radius * cos(i * delta_angle);
-        vertex[i].y = radius * sin(i * delta_angle);
-    }
+    polygon_copy_vertex(polygon, vertex);
 
     PolygonObject *polygon_object = polygon_object_create(vertex_count, vertex, color);
+
     free(vertex);
+    free(polygon);
+
     return polygon_object;
 }
 
