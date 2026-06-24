@@ -19,7 +19,7 @@
 
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
-#include <polygon_collider/edge.h>
+#include <polygon_collider/geometry/edge.h>
 
 typedef struct VectorObject VectorObject;
 

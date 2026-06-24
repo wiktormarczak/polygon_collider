@@ -14,12 +14,21 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#include <polygon_collider/edge.h>
+#include <polygon_collider/geometry/line.h>
+#include <polygon_collider/geometry/vector.h>
 
-Edge edge_get(Vector initial_point, Vector terminal_point)
+Line line_get(float slope, float intercept)
 {
-    Edge edge;
-    edge.initial_point = initial_point;
-    edge.terminal_point = terminal_point;
-    return edge;
+    Line line;
+    line.slope = slope;
+    line.intercept = intercept;
+    return line;
+}
+
+Line line_get_from_points(Vector left, Vector right)
+{
+    Line line;
+    line.slope = (left.y - right.y) / (left.x - right.x);
+    line.intercept = left.y - line.slope * left.x;
+    return line;
 }

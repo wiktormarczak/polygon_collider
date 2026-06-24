@@ -15,7 +15,7 @@
 
 #include <polygon_collider/collision.h>
 #include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/edge.h>
+#include <polygon_collider/geometry/edge.h>
 #include <float.h>
 #include <stdlib.h>
 #include <math.h>

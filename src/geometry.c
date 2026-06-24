@@ -16,7 +16,7 @@
 
 #include <polygon_collider/geometry.h>
 #include <polygon_collider/collision.h>
-#include <polygon_collider/line.h>
+#include <polygon_collider/geometry/line.h>
 #include <float.h>
 #include <math.h>
 

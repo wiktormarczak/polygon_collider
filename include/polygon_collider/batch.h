@@ -19,7 +19,7 @@
 
 #include <polygon_collider/polygon_object.h>
 #include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/edge.h>
+#include <polygon_collider/geometry/edge.h>
 
 typedef struct Batch Batch;
 
