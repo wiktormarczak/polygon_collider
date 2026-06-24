@@ -18,7 +18,6 @@
 #include <polygon_collider/geometry/polygon.h>
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/color.h>
-#include <polygon_collider/geometry.h>
 
 #include <math.h>
 #include <stddef.h>
@@ -28,6 +27,8 @@
 
 struct PolygonObject
 {
+    Polygon *local, *global;
+
     unsigned int vertex_count;
     Vector *vertex, *world_vertex;
 
@@ -43,24 +44,27 @@ struct PolygonObject
     Color color;
 };
 
-PolygonObject *polygon_object_create(unsigned int vertex_count, Vector *vertex, Color color)
+PolygonObject *polygon_object_create_regular(unsigned int vertex_count, double radius, Color color)
 {
     PolygonObject *polygon_object = malloc(sizeof(PolygonObject));
+
+    polygon_object->local = polygon_create_regular(vertex_count, radius);
+    polygon_object->global = polygon_create_regular(vertex_count, radius);
 
     polygon_object->vertex_count = vertex_count;
 
     polygon_object->vertex = malloc(vertex_count * sizeof(Vector));
-    memcpy(polygon_object->vertex, vertex, vertex_count * sizeof(Vector));
+    polygon_copy_vertex(polygon_object->local, polygon_object->vertex);
 
     polygon_object->world_vertex = malloc(vertex_count * sizeof(Vector));
-    memcpy(polygon_object->world_vertex, vertex, vertex_count * sizeof(Vector));
+    polygon_copy_vertex(polygon_object->local, polygon_object->world_vertex);
 
     polygon_object->position.x = 0.0f;
     polygon_object->position.y = 0.0f;
     polygon_object->orientation = 0.0f;
 
-    polygon_object->linear_mass = geometry_get_linear_mass(vertex_count, vertex);
-    polygon_object->angular_mass = geometry_get_angular_mass(vertex_count, vertex);
+    polygon_object->linear_mass = polygon_get_linear_mass(polygon_object->local);
+    polygon_object->angular_mass = polygon_get_angular_mass(polygon_object->local);
 
     polygon_object->linear_velocity.x = 0.0f;
     polygon_object->linear_velocity.y = 0.0f;
@@ -68,19 +72,7 @@ PolygonObject *polygon_object_create(unsigned int vertex_count, Vector *vertex, 
 
     polygon_object->color = color;
 
-    return polygon_object;
-}
-
-PolygonObject *polygon_object_create_regular(unsigned int vertex_count, double radius, Color color)
-{
-    Polygon *polygon = polygon_create_regular(vertex_count, radius);
-    Vector *vertex = malloc(vertex_count * sizeof(Vector));
-    polygon_copy_vertex(polygon, vertex);
-
-    PolygonObject *polygon_object = polygon_object_create(vertex_count, vertex, color);
-
-    free(vertex);
-    free(polygon);
+    printf("Angular mass: %f\n", polygon_object->angular_mass);
 
     return polygon_object;
 }
@@ -103,13 +95,13 @@ Color polygon_object_get_color(PolygonObject *polygon_object)
     return polygon_object->color;
 }
 
-double polygon_get_energy(PolygonObject *polygon_object)
+double polygon_object_get_energy(PolygonObject *polygon_object)
 {
     double speed = vector_get_length(polygon_object->linear_velocity);
     return 0.5 * polygon_object->linear_mass * speed * speed + 0.5 * polygon_object->angular_mass * polygon_object->angular_velocity * polygon_object->angular_velocity;
 }
 
-double polygon_get_angular_velocity(PolygonObject *polygon_object)
+double polygon_object_get_angular_velocity(PolygonObject *polygon_object)
 {
     return polygon_object->angular_velocity;
 }

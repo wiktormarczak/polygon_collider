@@ -26,6 +26,12 @@ void polygon_destroy(Polygon *polygon);
 
 unsigned int polygon_get_vertex_count(Polygon *polygon);
 
+double polygon_get_linear_mass(Polygon *polygon);
+double polygon_get_linear_mass_brutally(Polygon *polygon);
+
+double polygon_get_angular_mass(Polygon *polygon);
+double polygon_get_angular_mass_brutally(Polygon *polygon);
+
 void polygon_copy_vertex(Polygon *polygon, Vector *vertex_destination);
 
 #endif
