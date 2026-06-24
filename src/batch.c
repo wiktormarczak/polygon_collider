@@ -46,7 +46,7 @@ Batch *batch_create(unsigned int vertex_buffer_size, unsigned int index_buffer_s
 
     glBindBuffer(GL_ARRAY_BUFFER, batch->buffer[VERTEX_POSITION]);
     glBufferData(GL_ARRAY_BUFFER, vertex_buffer_size * sizeof(Vector), NULL, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, false, sizeof(Vector), (void *)0);
+    glVertexAttribPointer(0, 2, GL_DOUBLE, false, sizeof(Vector), (void *)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, batch->buffer[VERTEX_COLOR]);

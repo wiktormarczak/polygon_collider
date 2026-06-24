@@ -23,26 +23,26 @@
 typedef struct PolygonObject PolygonObject;
 
 PolygonObject *polygon_object_create(unsigned int vertex_count, Vector *vertex, Color color);
-PolygonObject *polygon_object_create_regular(unsigned int vertex_count, float radius, Color color);
+PolygonObject *polygon_object_create_regular(unsigned int vertex_count, double radius, Color color);
 
 void polygon_object_destroy(PolygonObject *polygon_object);
 
 unsigned int polygon_object_get_vertex_count(PolygonObject *polygon_object);
 Color polygon_object_get_color(PolygonObject *polygon_object);
 void polygon_object_copy_world_vertex(PolygonObject *polygon_object, Vector *destination);
-float polygon_object_get_energy(PolygonObject *polygon_object);
-float polygon_object_get_angular_velocity(PolygonObject *polygon_object);
+double polygon_object_get_energy(PolygonObject *polygon_object);
+double polygon_object_get_angular_velocity(PolygonObject *polygon_object);
 
 void polygon_object_set_position(PolygonObject *polygon_object, Vector position);
 void polygon_object_translate(PolygonObject *polygon_object, Vector translation);
-void polygon_object_set_orientation(PolygonObject *polygon_object, float orientation);
+void polygon_object_set_orientation(PolygonObject *polygon_object, double orientation);
 void polygon_object_adjust_linear_velocity(PolygonObject *polygon_object, Vector delta);
-void polygon_object_adjust_angular_velocity(PolygonObject *polygon_object, float delta);
+void polygon_object_adjust_angular_velocity(PolygonObject *polygon_object, double delta);
 void polygon_object_set_color(PolygonObject *polygon_object, Color color);
 
-void polygon_object_update(PolygonObject *polygon_object, float delta_time);
+void polygon_object_update(PolygonObject *polygon_object, double delta_time);
 
 void polygon_object_apply_impulse(PolygonObject *polygon_object, Vector position, Vector impulse);
-void polygon_object_copy_collision_parameters(PolygonObject *polygon_object, Vector collision_position, Vector collision_direction, float *a, float *b);
+void polygon_object_copy_collision_parameters(PolygonObject *polygon_object, Vector collision_position, Vector collision_direction, double *a, double *b);
 
 #endif

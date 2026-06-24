@@ -14,8 +14,6 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#define PI 3.1416f
-
 #include <polygon_collider/polygon_object.h>
 #include <polygon_collider/geometry/polygon.h>
 #include <polygon_collider/geometry/vector.h>
@@ -34,13 +32,13 @@ struct PolygonObject
     Vector *vertex, *world_vertex;
 
     Vector position;
-    float orientation;
+    double orientation;
 
-    float linear_mass;
-    float angular_mass;
+    double linear_mass;
+    double angular_mass;
 
     Vector linear_velocity;
-    float angular_velocity;
+    double angular_velocity;
 
     Color color;
 };
@@ -73,7 +71,7 @@ PolygonObject *polygon_object_create(unsigned int vertex_count, Vector *vertex, 
     return polygon_object;
 }
 
-PolygonObject *polygon_object_create_regular(unsigned int vertex_count, float radius, Color color)
+PolygonObject *polygon_object_create_regular(unsigned int vertex_count, double radius, Color color)
 {
     Polygon *polygon = polygon_create_regular(vertex_count, radius);
     Vector *vertex = malloc(vertex_count * sizeof(Vector));
@@ -105,13 +103,13 @@ Color polygon_object_get_color(PolygonObject *polygon_object)
     return polygon_object->color;
 }
 
-float polygon_get_energy(PolygonObject *polygon_object)
+double polygon_get_energy(PolygonObject *polygon_object)
 {
-    float speed = vector_get_length(polygon_object->linear_velocity);
-    return 0.5f * polygon_object->linear_mass * speed * speed + 0.5f * polygon_object->angular_mass * polygon_object->angular_velocity * polygon_object->angular_velocity;
+    double speed = vector_get_length(polygon_object->linear_velocity);
+    return 0.5 * polygon_object->linear_mass * speed * speed + 0.5 * polygon_object->angular_mass * polygon_object->angular_velocity * polygon_object->angular_velocity;
 }
 
-float polygon_get_angular_velocity(PolygonObject *polygon_object)
+double polygon_get_angular_velocity(PolygonObject *polygon_object)
 {
     return polygon_object->angular_velocity;
 }
@@ -131,7 +129,7 @@ void polygon_object_translate(PolygonObject *polygon_object, Vector translation)
     polygon_object->position = vector_get_sum(polygon_object->position, translation);
 }
 
-void polygon_object_set_orientation(PolygonObject *polygon_object, float orientation)
+void polygon_object_set_orientation(PolygonObject *polygon_object, double orientation)
 {
     polygon_object->orientation = orientation;
 }
@@ -142,7 +140,7 @@ void polygon_object_adjust_linear_velocity(PolygonObject *polygon_object, Vector
     polygon_object->linear_velocity.y += delta.y;
 }
 
-void polygon_object_adjust_angular_velocity(PolygonObject *polygon_object, float delta)
+void polygon_object_adjust_angular_velocity(PolygonObject *polygon_object, double delta)
 {
     polygon_object->angular_velocity += delta;
 }
@@ -152,20 +150,22 @@ void polygon_object_set_color(PolygonObject *polygon_object, Color color)
     polygon_object->color = color;
 }
 
-void polygon_object_update(PolygonObject *polygon_object, float delta_time)
+void polygon_object_update(PolygonObject *polygon_object, double delta_time)
 {
+    const double pi = 3.141592653589793;
+
     polygon_object->position.x += delta_time * polygon_object->linear_velocity.x;
     polygon_object->position.y += delta_time * polygon_object->linear_velocity.y;
     polygon_object->orientation += delta_time * polygon_object->angular_velocity;
 
-    polygon_object->orientation = fmod(polygon_object->orientation, 2.0f * PI);
+    polygon_object->orientation = fmod(polygon_object->orientation, 2.0 * pi);
 
     for(int i = 0; i < polygon_object->vertex_count; i++)
     {
-        float x = polygon_object->vertex[i].x;
-        float y = polygon_object->vertex[i].y;
-        float s = sin(polygon_object->orientation);
-        float c = cos(polygon_object->orientation);
+        double x = polygon_object->vertex[i].x;
+        double y = polygon_object->vertex[i].y;
+        double s = sin(polygon_object->orientation);
+        double c = cos(polygon_object->orientation);
         polygon_object->world_vertex[i].x = x * c - y * s + polygon_object->position.x;
         polygon_object->world_vertex[i].y = x * s + y * c + polygon_object->position.y;
     }
@@ -173,18 +173,18 @@ void polygon_object_update(PolygonObject *polygon_object, float delta_time)
 
 void polygon_object_apply_impulse(PolygonObject *polygon_object, Vector position, Vector impulse)
 {
-    Vector delta_linear_velocity = vector_get_scaled(impulse, 1.0f / polygon_object->linear_mass);
+    Vector delta_linear_velocity = vector_get_scaled(impulse, 1.0 / polygon_object->linear_mass);
     polygon_object->linear_velocity = vector_get_sum(polygon_object->linear_velocity, delta_linear_velocity);
 
     Vector local_position = vector_get_difference(position, polygon_object->position);
-    float delta_angular_velocity = vector_get_cross_product(local_position, impulse) / polygon_object->angular_mass;
+    double delta_angular_velocity = vector_get_cross_product(local_position, impulse) / polygon_object->angular_mass;
     polygon_object->angular_velocity += delta_angular_velocity;
 }
 
-void polygon_object_copy_collision_parameters(PolygonObject *polygon_object, Vector collision_position, Vector collision_direction, float *a_destination, float *b_destination)
+void polygon_object_copy_collision_parameters(PolygonObject *polygon_object, Vector collision_position, Vector collision_direction, double *a_destination, double *b_destination)
 {
     Vector local_position = vector_get_difference(collision_position, polygon_object->position);
-    float base_torque = vector_get_cross_product(local_position, collision_direction);
+    double base_torque = vector_get_cross_product(local_position, collision_direction);
     *a_destination = 1.0f / (2.0f * polygon_object->linear_mass) + base_torque * base_torque / (2.0f * polygon_object->angular_mass);
     *b_destination = vector_get_dot_product(collision_direction, polygon_object->linear_velocity) + base_torque * polygon_object->angular_velocity;
 }

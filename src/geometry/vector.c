@@ -17,7 +17,7 @@
 #include <polygon_collider/geometry/vector.h>
 #include <math.h>
 
-Vector vector_get(float x, float y)
+Vector vector_get(double x, double y)
 {
     Vector vector;
     vector.x = x;
@@ -25,65 +25,105 @@ Vector vector_get(float x, float y)
     return vector;
 }
 
-float vector_get_length(Vector vector)
-{
-    return sqrt(vector_get_dot_product(vector, vector));
-}
-
 Vector vector_get_normalized(Vector vector)
 {
-    float length = vector_get_length(vector);
-    vector = vector_get_scaled(vector, 1.0f / length);
-    return vector;
+    return vector_get_resized(vector, 1.0f);
 }
 
-Vector vector_get_perpendicular(Vector vector)
+Vector vector_get_negative(Vector vector)
 {
-    Vector perpendicular;
-    perpendicular.x = vector.y;
-    perpendicular.y = -vector.x;
-    return perpendicular;
+    return vector_get_scaled(vector, -1.0);
 }
 
-Vector vector_get_negated(Vector vector)
+Vector vector_get_orthogonal(Vector vector)
 {
-    vector.x = -vector.x;
-    vector.y = -vector.y;
-    return vector;
+    const double pi = 3.141592653589793;
+    return vector_get_rotated(vector, -pi / 2.0);
 }
 
-Vector vector_get_scaled(Vector vector, float scalar)
+Vector vector_get_scaled(Vector vector, double scalar)
 {
     vector.x *= scalar;
     vector.y *= scalar;
     return vector;
 }
 
-Vector vector_get_resized(Vector vector, float size)
+Vector vector_get_resized(Vector vector, double size)
 {
-    return vector_get_scaled(vector_get_normalized(vector), size);
+    double length = vector_get_length(vector);
+    return vector_get_scaled(vector, size / length);
 }
 
-Vector vector_get_rotated(Vector vector, float angle)
+Vector vector_get_rotated(Vector vector, double angle)
 {
+    double sine = sin(angle);
+    double cosine = cos(angle);
+
     Vector rotated;
-    rotated.x = vector.x * cos(angle) - vector.y * sin(angle);
-    rotated.y = vector.x * sin(angle) + vector.y * cos(angle);
+    rotated.x = vector.x * cosine - vector.y * sine;
+    rotated.y = vector.x * sine + vector.y * cosine;
     return rotated;
+}
+
+double vector_get_length(Vector vector)
+{
+    return sqrt(vector_get_dot_product(vector, vector));
+}
+
+void vector_normalize(Vector *vector)
+{
+    *vector = vector_get_normalized(*vector);
+}
+
+void vector_negate(Vector *vector)
+{
+    *vector = vector_get_negative(*vector);
+}
+
+void vector_orthogonalize(Vector *vector)
+{
+    *vector = vector_get_orthogonal(*vector);
+}
+
+void vector_scale(Vector *vector, double scalar)
+{
+    *vector = vector_get_scaled(*vector, scalar);
+}
+
+void vector_resize(Vector *vector, double size)
+{
+    *vector = vector_get_resized(*vector, size);
+}
+
+void vector_rotate(Vector *vector, double angle)
+{
+    *vector = vector_get_rotated(*vector, angle);
+}
+
+void vector_add(Vector *vector, Vector summand)
+{
+    *vector = vector_get_sum(*vector, summand);
+}
+
+void vector_subtract(Vector *vector, Vector subtrahend)
+{
+    *vector = vector_get_difference(*vector, subtrahend);
 }
 
 Vector vector_get_sum(Vector left, Vector right)
 {
-    left.x += right.x;
-    left.y += right.y;
-    return left;
+    Vector vector;
+    vector.x = left.x + right.x;
+    vector.y = left.y + right.y;
+    return vector;
 }
 
 Vector vector_get_difference(Vector left, Vector right)
 {
-    left.x -= right.x;
-    left.y -= right.y;
-    return left;
+    Vector vector;
+    vector.x = left.x - right.x;
+    vector.y = left.y - right.y;
+    return vector;
 }
 
 Vector vector_get_average(Vector left, Vector right)
@@ -91,12 +131,12 @@ Vector vector_get_average(Vector left, Vector right)
     return vector_get_scaled(vector_get_sum(left, right), 0.5f);
 }
 
-float vector_get_dot_product(Vector left, Vector right)
+double vector_get_dot_product(Vector left, Vector right)
 {
     return left.x * right.x + left.y * right.y;
 }
 
-float vector_get_cross_product(Vector left, Vector right)
+double vector_get_cross_product(Vector left, Vector right)
 {
     return left.x * right.y - left.y * right.x;
 }
@@ -104,6 +144,6 @@ float vector_get_cross_product(Vector left, Vector right)
 Vector vector_get_normal(Vector left, Vector right)
 {
     Vector edge = vector_get_difference(right, left);
-    Vector normal = vector_get_perpendicular(edge);
+    Vector normal = vector_get_orthogonal(edge);
     return vector_get_normalized(normal);
 }

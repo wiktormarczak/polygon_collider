@@ -19,27 +19,41 @@
 
 typedef struct
 {
-    float x, y;
+    double x, y;
 } Vector;
 
-Vector vector_get(float x, float y);
-
-float vector_get_length(Vector vector);
+Vector vector_get(double x, double y);
 
 Vector vector_get_normalized(Vector vector);
-Vector vector_get_perpendicular(Vector vector);
-Vector vector_get_negated(Vector vector);
+Vector vector_get_negative(Vector vector);
+Vector vector_get_orthogonal(Vector vector);
 
-Vector vector_get_scaled(Vector vector, float scalar);
-Vector vector_get_resized(Vector vector, float size);
-Vector vector_get_rotated(Vector vector, float angle);
+Vector vector_get_scaled(Vector vector, double scalar);
+Vector vector_get_resized(Vector vector, double size);
+Vector vector_get_rotated(Vector vector, double angle);
+
+double vector_get_length(Vector vector);
+
+void vector_normalize(Vector *vector);
+void vector_negate(Vector *vector);
+void vector_orthogonalize(Vector *vector);
+
+void vector_scale(Vector *vector, double scalar);
+void vector_resize(Vector *vector, double size);
+void vector_rotate(Vector *vector, double angle);
+
+void vector_add(Vector *vector, Vector summand);
+void vector_subtract(Vector *vector, Vector subtrahend);
 
 Vector vector_get_sum(Vector left, Vector right);
 Vector vector_get_difference(Vector left, Vector right);
-Vector vector_get_average(Vector left, Vector right);
-float vector_get_dot_product(Vector left, Vector right);
-float vector_get_cross_product(Vector left, Vector right);
 
+Vector vector_get_average(Vector left, Vector right);
+
+double vector_get_dot_product(Vector left, Vector right);
+double vector_get_cross_product(Vector left, Vector right);
+
+// To Be Deleted
 Vector vector_get_normal(Vector left, Vector right);
 
 #endif
