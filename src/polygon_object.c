@@ -29,9 +29,6 @@ struct PolygonObject
 {
     Polygon *local, *global;
 
-    unsigned int vertex_count;
-    Vector *vertex, *world_vertex;
-
     Vector position;
     double orientation;
 
@@ -50,14 +47,6 @@ PolygonObject *polygon_object_create_regular(unsigned int vertex_count, double r
 
     polygon_object->local = polygon_create_regular(vertex_count, radius);
     polygon_object->global = polygon_create_regular(vertex_count, radius);
-
-    polygon_object->vertex_count = vertex_count;
-
-    polygon_object->vertex = malloc(vertex_count * sizeof(Vector));
-    polygon_copy_vertex(polygon_object->local, polygon_object->vertex);
-
-    polygon_object->world_vertex = malloc(vertex_count * sizeof(Vector));
-    polygon_copy_vertex(polygon_object->local, polygon_object->world_vertex);
 
     polygon_object->position.x = 0.0f;
     polygon_object->position.y = 0.0f;
@@ -79,15 +68,15 @@ PolygonObject *polygon_object_create_regular(unsigned int vertex_count, double r
 
 void polygon_object_destroy(PolygonObject *polygon_object)
 {
-    free(polygon_object->vertex);
-    polygon_object->vertex = NULL;
+    // free(polygon_object->vertex);
+    // polygon_object->vertex = NULL;
 
     free(polygon_object);
 }
 
 unsigned int polygon_object_get_vertex_count(PolygonObject *polygon_object)
 {
-    return polygon_object->vertex_count;
+    return polygon_get_vertex_count(polygon_object->local);
 }
 
 Color polygon_object_get_color(PolygonObject *polygon_object)
@@ -108,7 +97,7 @@ double polygon_object_get_angular_velocity(PolygonObject *polygon_object)
 
 void polygon_object_copy_world_vertex(PolygonObject *polygon_object, Vector *destination)
 {
-    memcpy(destination, polygon_object->world_vertex, polygon_object->vertex_count * sizeof(Vector));
+    polygon_copy_vertex(polygon_object->global, destination);
 }
 
 void polygon_object_set_position(PolygonObject *polygon_object, Vector position)
@@ -146,21 +135,14 @@ void polygon_object_update(PolygonObject *polygon_object, double delta_time)
 {
     const double pi = 3.141592653589793;
 
-    polygon_object->position.x += delta_time * polygon_object->linear_velocity.x;
-    polygon_object->position.y += delta_time * polygon_object->linear_velocity.y;
+    vector_add(&polygon_object->position, vector_get_scaled(polygon_object->linear_velocity, delta_time));
     polygon_object->orientation += delta_time * polygon_object->angular_velocity;
 
     polygon_object->orientation = fmod(polygon_object->orientation, 2.0 * pi);
 
-    for(int i = 0; i < polygon_object->vertex_count; i++)
-    {
-        double x = polygon_object->vertex[i].x;
-        double y = polygon_object->vertex[i].y;
-        double s = sin(polygon_object->orientation);
-        double c = cos(polygon_object->orientation);
-        polygon_object->world_vertex[i].x = x * c - y * s + polygon_object->position.x;
-        polygon_object->world_vertex[i].y = x * s + y * c + polygon_object->position.y;
-    }
+    polygon_copy(polygon_object->local, polygon_object->global);
+    polygon_rotate(polygon_object->global, polygon_object->orientation);
+    polygon_translate(polygon_object->global, polygon_object->position);
 }
 
 void polygon_object_apply_impulse(PolygonObject *polygon_object, Vector position, Vector impulse)

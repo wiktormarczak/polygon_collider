@@ -51,6 +51,17 @@ Polygon *polygon_create_regular(unsigned int vertex_count, float radius)
     return polygon;
 }
 
+void polygon_copy(Polygon *source, Polygon *destination)
+{
+    if(source->vertex_count != destination->vertex_count)
+    {
+        destination->vertex_count = source->vertex_count;
+        destination->vertex = realloc(destination->vertex, destination->vertex_count * sizeof(Vector));
+    }
+
+    memcpy(destination->vertex, source->vertex, destination->vertex_count * sizeof(Vector));
+}
+
 void polygon_destroy(Polygon *polygon)
 {
     for(unsigned int i = 0; i < polygon->vertex_count; i++)
@@ -168,4 +179,16 @@ double polygon_get_angular_mass_brutally(Polygon *polygon)
 void polygon_copy_vertex(Polygon *polygon, Vector *vertex_destination)
 {
     memcpy(vertex_destination, polygon->vertex, polygon->vertex_count * sizeof(Vector));
+}
+
+void polygon_translate(Polygon *polygon, Vector translation)
+{
+    for(unsigned int i = 0; i < polygon->vertex_count; i++)
+        vector_add(&polygon->vertex[i], translation);
+}
+
+void polygon_rotate(Polygon *polygon, double rotation)
+{
+    for(unsigned int i = 0; i < polygon->vertex_count; i++)
+        vector_rotate(&polygon->vertex[i], rotation);
 }

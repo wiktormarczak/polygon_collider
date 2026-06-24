@@ -22,6 +22,7 @@
 typedef struct Polygon Polygon;
 
 Polygon *polygon_create_regular(unsigned int vertex_count, float radius);
+void polygon_copy(Polygon *source, Polygon *destination);
 void polygon_destroy(Polygon *polygon);
 
 unsigned int polygon_get_vertex_count(Polygon *polygon);
@@ -33,5 +34,8 @@ double polygon_get_angular_mass(Polygon *polygon);
 double polygon_get_angular_mass_brutally(Polygon *polygon);
 
 void polygon_copy_vertex(Polygon *polygon, Vector *vertex_destination);
+
+void polygon_translate(Polygon *polygon, Vector translation);
+void polygon_rotate(Polygon *polygon, double rotation);
 
 #endif
