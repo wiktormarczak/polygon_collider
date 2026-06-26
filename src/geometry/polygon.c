@@ -223,7 +223,8 @@ bool polygon_collision_is_point_inside(Vector point, unsigned int vertex_count, 
 {
     for(int i = 0; i < vertex_count; i++)
     {
-        Vector axis = vector_get_normal(vertex[i], vertex[(i + 1) % vertex_count]);
+        Edge edge = edge_get(vertex[i], vertex[(i + 1) % vertex_count]);
+        Vector axis = edge_get_normal(edge);
         double point_value = vector_get_dot_product(axis, point);
         double polygon_value = vector_get_dot_product(axis, vertex[i]);
 
@@ -241,7 +242,8 @@ double polygon_collision_get_min_overlap(Polygon *left, Polygon *right, Vector *
 
     for(int i = 0; i < left->vertex_count; i++)
     {
-        Vector axis = vector_get_normal(left->vertex[i], left->vertex[(i + 1) % left->vertex_count]);
+        Edge edge = edge_get(left->vertex[i], left->vertex[(i + 1) % left->vertex_count]);
+        Vector axis = edge_get_normal(edge);
 
         Vector contact_point;
         double left_max = vector_get_dot_product(axis, left->vertex[i]);

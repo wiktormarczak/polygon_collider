@@ -140,10 +140,3 @@ double vector_get_cross_product(Vector left, Vector right)
 {
     return left.x * right.y - left.y * right.x;
 }
-
-Vector vector_get_normal(Vector left, Vector right)
-{
-    Vector edge = vector_get_difference(right, left);
-    Vector normal = vector_get_orthogonal(edge);
-    return vector_get_normalized(normal);
-}

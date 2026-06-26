@@ -53,7 +53,4 @@ Vector vector_get_average(Vector left, Vector right);
 double vector_get_dot_product(Vector left, Vector right);
 double vector_get_cross_product(Vector left, Vector right);
 
-// To Be Deleted
-Vector vector_get_normal(Vector left, Vector right);
-
 #endif

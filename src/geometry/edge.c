@@ -23,3 +23,14 @@ Edge edge_get(Vector initial_point, Vector terminal_point)
     edge.terminal_point = terminal_point;
     return edge;
 }
+
+Vector edge_get_vector(Edge edge)
+{
+    return vector_get_difference(edge.terminal_point, edge.initial_point);
+}
+
+Vector edge_get_normal(Edge edge)
+{
+    Vector vector = edge_get_vector(edge);
+    return vector_get_normalized(vector_get_orthogonal(vector));
+}

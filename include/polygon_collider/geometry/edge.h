@@ -26,4 +26,7 @@ typedef struct
 
 Edge edge_get(Vector initial_point, Vector terminal_point);
 
+Vector edge_get_vector(Edge edge);
+Vector edge_get_normal(Edge edge);
+
 #endif
