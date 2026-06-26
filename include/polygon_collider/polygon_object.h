@@ -18,6 +18,7 @@
 #define POLYGON_OBJECT_H
 
 #include <polygon_collider/geometry/vector.h>
+#include <polygon_collider/vector_object_queue.h>
 #include <polygon_collider/color.h>
 
 typedef struct PolygonObject PolygonObject;
@@ -44,5 +45,8 @@ void polygon_object_update(PolygonObject *polygon_object, double delta_time);
 
 void polygon_object_apply_impulse(PolygonObject *polygon_object, Vector position, Vector impulse);
 void polygon_object_copy_collision_parameters(PolygonObject *polygon_object, Vector collision_position, Vector collision_direction, double *a, double *b);
+
+bool polygon_object_collision_handle(PolygonObject *left, PolygonObject *right, VectorObjectQueue *vector_object_queue);
+void polygon_object_collision_handle_with_wall(PolygonObject *polygon, VectorObjectQueue *vector_object_queue);
 
 #endif

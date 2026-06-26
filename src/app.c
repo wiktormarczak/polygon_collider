@@ -134,9 +134,9 @@ static void app_update(App *app, float delta_time)
     polygon_object_update(app->polygon_left, delta_time);
     polygon_object_update(app->polygon_right, delta_time);
 
-    collision_handle_with_wall(app->polygon_left, app->vector_object_queue);
-    collision_handle_with_wall(app->polygon_right, app->vector_object_queue);
-    collision_handle(app->polygon_left, app->polygon_right, app->vector_object_queue);
+    polygon_object_collision_handle_with_wall(app->polygon_left, app->vector_object_queue);
+    polygon_object_collision_handle_with_wall(app->polygon_right, app->vector_object_queue);
+    polygon_object_collision_handle(app->polygon_left, app->polygon_right, app->vector_object_queue);
     vector_object_queue_update(app->vector_object_queue, delta_time);
 
     camera_update(app->camera);
