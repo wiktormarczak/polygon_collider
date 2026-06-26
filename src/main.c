@@ -16,6 +16,7 @@
 
 
 #include <polygon_collider/app.h>
+#include <SDL3/SDL_main.h>
 #include <stddef.h>
 
 int main()
