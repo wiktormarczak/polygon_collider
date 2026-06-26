@@ -21,11 +21,27 @@
 #include <math.h>
 #include <stdio.h>
 
-typedef struct
+struct Polygon
 {
     unsigned int vertex_count;
     Vector *vertex;
-} CollisionBox;
+};
+
+struct PolygonObject
+{
+    Polygon *local, *global;
+
+    Vector position;
+    double orientation;
+
+    double linear_mass;
+    double angular_mass;
+
+    Vector linear_velocity;
+    double angular_velocity;
+
+    Color color;
+};
 
 typedef enum
 {
@@ -34,11 +50,6 @@ typedef enum
     BOTTOM,
     TOP
 } Direction;
-
-static CollisionBox *collision_box_create(PolygonObject *polygon);
-static void collision_box_destroy(CollisionBox *collision_box);
-static double collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination);
-static double collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination);
 
 bool collision_handle(PolygonObject *left, PolygonObject *right, VectorObjectQueue *vector_object_queue)
 {
@@ -88,12 +99,10 @@ void collision_handle_with_wall(PolygonObject *polygon, VectorObjectQueue *vecto
         edge_get(vector_get(bound[LEFT], bound[TOP]), vector_get(bound[RIGHT], bound[TOP]))
     };
 
-    CollisionBox *collision_box = collision_box_create(polygon);
-
     for(int i = 0; i < 4; i++)
     {
         Vector contact_point;
-        double polygon_value = collision_get_projection_min(axis[i], edge[i], collision_box, &contact_point);
+        double polygon_value = collision_get_projection_min(axis[i], edge[i], polygon->global, &contact_point);
         double edge_value = -fabs(bound[i]);
 
         if(polygon_value < edge_value)
@@ -118,12 +127,9 @@ void collision_handle_with_wall(PolygonObject *polygon, VectorObjectQueue *vecto
 
 bool collision_check(PolygonObject *left, PolygonObject *right, Vector *contact_point_destination, Vector *axis_destination)
 {
-    CollisionBox *collision_box_left = collision_box_create(left);
-    CollisionBox *collision_box_right = collision_box_create(right);
-
     Vector contact_point_left, axis_left, contact_point_right, axis_right;
-    double overlap_left = collision_get_min_overlap(collision_box_left, collision_box_right, &contact_point_left, &axis_left);
-    double overlap_right = collision_get_min_overlap(collision_box_right, collision_box_left, &contact_point_right, &axis_right);
+    double overlap_left = collision_get_min_overlap(left->global, right->global, &contact_point_left, &axis_left);
+    double overlap_right = collision_get_min_overlap(right->global, left->global, &contact_point_right, &axis_right);
 
     double overlap = overlap_left;
     Vector contact_point = contact_point_left;
@@ -159,29 +165,7 @@ bool collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *
     return true;
 }
 
-static CollisionBox *collision_box_create(PolygonObject *polygon)
-{
-    CollisionBox *collision_box = malloc(sizeof(CollisionBox));
-
-    collision_box->vertex_count = polygon_object_get_vertex_count(polygon);
-    collision_box->vertex = malloc(collision_box->vertex_count * sizeof(Vector));
-    polygon_object_copy_world_vertex(polygon, collision_box->vertex);
-
-    return collision_box;
-}
-
-static void collision_box_destroy(CollisionBox *collision_box)
-{
-    collision_box->vertex_count = 0;
-
-    free(collision_box->vertex);
-    collision_box->vertex = NULL;
-
-    free(collision_box);
-    collision_box = NULL;
-}
-
-static double collision_get_min_overlap(CollisionBox *left, CollisionBox *right, Vector *contact_point_destination, Vector *axis_destination)
+double collision_get_min_overlap(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
 {
     double min_overlap = FLT_MAX;
     Vector min_contact_point, min_axis;
@@ -209,7 +193,7 @@ static double collision_get_min_overlap(CollisionBox *left, CollisionBox *right,
     return min_overlap;
 }
 
-static double collision_get_projection_min(Vector axis, Edge edge, CollisionBox *collision_box, Vector *contact_point_destination)
+double collision_get_projection_min(Vector axis, Edge edge, Polygon *collision_box, Vector *contact_point_destination)
 {
     double min = FLT_MAX;
     Vector contact_point_1, contact_point_2;

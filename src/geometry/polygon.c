@@ -192,3 +192,5 @@ void polygon_rotate(Polygon *polygon, double rotation)
     for(unsigned int i = 0; i < polygon->vertex_count; i++)
         vector_rotate(&polygon->vertex[i], rotation);
 }
+
+// Collisions
