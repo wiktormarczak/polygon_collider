@@ -18,7 +18,6 @@
 #define VECTOR_OBJECT_QUEUE_H
 
 #include <polygon_collider/vector_object.h>
-#include <polygon_collider/renderer.h>
 
 typedef struct VectorObjectQueue VectorObjectQueue;
 
@@ -27,6 +26,8 @@ void vector_object_queue_destroy(VectorObjectQueue *vector_object_queue);
 
 void vector_object_queue_submit_vector(VectorObjectQueue *vector_object_queue, VectorObject *vector_object);
 void vector_object_queue_update(VectorObjectQueue *vector_object_queue, float delta_time);
-void vector_object_queue_submit_to_renderer(VectorObjectQueue *vector_object_queue, Renderer *renderer);
+
+unsigned int vector_object_queue_get_count(VectorObjectQueue *vector_object_queue);
+VectorObject *vector_object_queue_get_vector_object(VectorObjectQueue *vector_object_queue, unsigned int i);
 
 #endif

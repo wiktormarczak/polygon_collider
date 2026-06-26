@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 struct Renderer
 {
@@ -90,6 +91,16 @@ void renderer_submit_vector(Renderer* renderer, VectorObject *vector)
 
     batch_submit_edge(renderer->vector_edge_batch, edge, color);
     batch_submit_triangle(renderer->vector_tip_batch, tip, color);
+}
+
+void renderer_submit_vector_queue(Renderer *renderer, VectorObjectQueue *vector_object_queue)
+{
+    unsigned int count = vector_object_queue_get_count(vector_object_queue);
+    for(unsigned int i = 0; i < count; i++)
+    {
+        VectorObject *vector_object = vector_object_queue_get_vector_object(vector_object_queue, i);
+        renderer_submit_vector(renderer, vector_object);
+    }
 }
 
 void renderer_flush(Renderer *renderer, Camera *camera)

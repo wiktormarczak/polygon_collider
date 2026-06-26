@@ -20,6 +20,7 @@
 #include <polygon_collider/polygon_object.h>
 #include <polygon_collider/camera.h>
 #include <polygon_collider/vector_object.h>
+#include <polygon_collider/vector_object_queue.h>
 
 typedef struct Renderer Renderer;
 
@@ -28,6 +29,7 @@ void renderer_destroy(Renderer *renderer);
 
 void renderer_submit_polygon(Renderer* renderer, PolygonObject *polygon);
 void renderer_submit_vector(Renderer* renderer, VectorObject *vector);
+void renderer_submit_vector_queue(Renderer *renderer, VectorObjectQueue *vector_object_queue);
 void renderer_flush(Renderer *renderer, Camera *camera);
 
 #endif

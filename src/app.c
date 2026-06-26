@@ -146,8 +146,7 @@ static void app_draw(App *app)
 {
     renderer_submit_polygon(app->renderer, app->polygon_left);
     renderer_submit_polygon(app->renderer, app->polygon_right);
-
-    vector_object_queue_submit_to_renderer(app->vector_object_queue, app->renderer);
+    renderer_submit_vector_queue(app->renderer, app->vector_object_queue);
 
     renderer_flush(app->renderer, app->camera);
     window_refresh(app->window);
