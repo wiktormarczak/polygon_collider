@@ -295,8 +295,8 @@ double polygon_collision_get_projection_min(Vector axis, Edge edge, Polygon *col
     if(db)
     {
         Vector point[4];
-        point[0] = edge.initial_point;
-        point[1] = edge.terminal_point;
+        point[0] = edge.tail;
+        point[1] = edge.head;
         point[2] = contact_point_1;
         point[3] = contact_point_2;
 

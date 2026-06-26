@@ -21,10 +21,10 @@
 
 typedef struct
 {
-    Vector initial_point, terminal_point;
+    Vector tail, head;
 } Edge;
 
-Edge edge_get(Vector initial_point, Vector terminal_point);
+Edge edge_get(Vector tail, Vector head);
 
 Vector edge_get_vector(Edge edge);
 Vector edge_get_normal(Edge edge);

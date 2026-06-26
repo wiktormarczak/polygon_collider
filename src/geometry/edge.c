@@ -15,22 +15,25 @@
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
 #include <polygon_collider/geometry/edge.h>
+#include <polygon_collider/geometry/vector.h>
 
-Edge edge_get(Vector initial_point, Vector terminal_point)
+Edge edge_get(Vector tail, Vector head)
 {
     Edge edge;
-    edge.initial_point = initial_point;
-    edge.terminal_point = terminal_point;
+    edge.tail = tail;
+    edge.head = head;
     return edge;
 }
 
 Vector edge_get_vector(Edge edge)
 {
-    return vector_get_difference(edge.terminal_point, edge.initial_point);
+    return vector_get_difference(edge.head, edge.tail);
 }
 
 Vector edge_get_normal(Edge edge)
 {
     Vector vector = edge_get_vector(edge);
-    return vector_get_normalized(vector_get_orthogonal(vector));
+    vector_orthogonalize(&vector);
+    vector_normalize(&vector);
+    return vector;
 }

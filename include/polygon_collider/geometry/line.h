@@ -21,10 +21,10 @@
 
 typedef struct
 {
-    float slope, intercept;
+    double slope, intercept;
 } Line;
 
-Line line_get(float slope, float intercept);
+Line line_get(double slope, double intercept);
 Line line_get_from_points(Vector left, Vector right);
 
 double line_get_segment_angular_mass(Line line, double left, double right);

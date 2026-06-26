@@ -130,47 +130,11 @@ void batch_submit_polygon(Batch *batch, PolygonObject *polygon)
     batch->index_count += delta_index_count;
 }
 
-// void batch_submit_vector(Batch *batch, Vector position, Vector direction, Color color)
-// {
-//     unsigned int initial_vertex = batch->vertex_count;
-//     unsigned int initial_index = batch->index_count;
-//     unsigned int delta_vertex_count = 4;
-//     unsigned int delta_index_count = 8;
-//
-//     Vector initial_point = position;
-//     Vector terminal_point = vector_get_sum(position, direction);
-//     Vector u = vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, 3.1416f * 0.9f)), 0.2f);
-//     Vector v = vector_get_scaled(vector_get_normalized(vector_get_rotated(direction, -3.1416f * 0.9f)), 0.2f);
-//     Vector left_tip_point = vector_get_sum(terminal_point, u);
-//     Vector right_tip_point = vector_get_sum(terminal_point, v);
-//
-//     batch->vertex_position_data[initial_vertex] = initial_point;
-//     batch->vertex_position_data[initial_vertex + 1] = terminal_point;
-//     batch->vertex_position_data[initial_vertex + 2] = left_tip_point;
-//     batch->vertex_position_data[initial_vertex + 3] = right_tip_point;
-//
-//     for(int i = initial_vertex; i < initial_vertex + delta_vertex_count; i++)
-//         batch->vertex_color_data[i] = color;
-//
-//     batch->vertex_count += delta_vertex_count;
-//
-//     batch->index_data[initial_index] = initial_vertex;
-//     batch->index_data[initial_index + 1] = initial_vertex + 1;
-//     batch->index_data[initial_index + 2] = initial_vertex + 1;
-//     batch->index_data[initial_index + 3] = initial_vertex + 2;
-//     batch->index_data[initial_index + 4] = initial_vertex + 2;
-//     batch->index_data[initial_index + 5] = initial_vertex + 3;
-//     batch->index_data[initial_index + 6] = initial_vertex + 3;
-//     batch->index_data[initial_index + 7] = initial_vertex + 1;
-//
-//     batch->index_count += delta_index_count;
-// }
-
 void batch_submit_edge(Batch *batch, Edge edge, Color color)
 {
     unsigned int initial_vertex = batch->vertex_count;
-    batch->vertex_position_data[initial_vertex] = edge.initial_point;
-    batch->vertex_position_data[initial_vertex + 1] = edge.terminal_point;
+    batch->vertex_position_data[initial_vertex] = edge.tail;
+    batch->vertex_position_data[initial_vertex + 1] = edge.head;
     batch->vertex_color_data[initial_vertex] = color;
     batch->vertex_color_data[initial_vertex + 1] = color;
     batch->vertex_count += 2;

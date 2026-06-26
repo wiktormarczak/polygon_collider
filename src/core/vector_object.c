@@ -45,8 +45,8 @@ void vector_object_set_color(VectorObject *vector_object, Color color)
 Edge vector_object_get_edge(VectorObject *vector_object)
 {
     Edge edge;
-    edge.initial_point = vector_object->position;
-    edge.terminal_point = vector_get_sum(vector_object->position, vector_object->vector);
+    edge.tail = vector_object->position;
+    edge.head = vector_get_sum(vector_object->position, vector_object->vector);
     return edge;
 }
 
