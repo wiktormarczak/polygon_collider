@@ -1,5 +1,5 @@
-#include <polygon_collider/vector_object_queue.h>
-#include <polygon_collider/vector_object.h>
+#include <polygon_collider/core/vector_object_queue.h>
+#include <polygon_collider/core/vector_object.h>
 #include <stdlib.h>
 
 #define QUEUE_SIZE 100

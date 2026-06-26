@@ -18,13 +18,13 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-#include <polygon_collider/app.h>
-#include <polygon_collider/window.h>
-#include <polygon_collider/stopwatch.h>
-#include <polygon_collider/renderer.h>
-#include <polygon_collider/camera.h>
-#include <polygon_collider/polygon_object.h>
-#include <polygon_collider/vector_object_queue.h>
+#include <polygon_collider/core/app.h>
+#include <polygon_collider/system/window.h>
+#include <polygon_collider/system/stopwatch.h>
+#include <polygon_collider/graphics/renderer.h>
+#include <polygon_collider/graphics/camera.h>
+#include <polygon_collider/core/polygon_object.h>
+#include <polygon_collider/core/vector_object_queue.h>
 
 #include <stdbool.h>
 #include <stdlib.h>

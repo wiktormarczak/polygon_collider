@@ -14,13 +14,13 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#include <polygon_collider/renderer.h>
-#include <polygon_collider/shader.h>
-#include <polygon_collider/camera.h>
-#include <polygon_collider/polygon_object.h>
+#include <polygon_collider/graphics/renderer.h>
+#include <polygon_collider/graphics/shader.h>
+#include <polygon_collider/graphics/camera.h>
+#include <polygon_collider/core/polygon_object.h>
 #include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/color.h>
-#include <polygon_collider/batch.h>
+#include <polygon_collider/graphics/color.h>
+#include <polygon_collider/graphics/batch.h>
 #include <polygon_collider/geometry/edge.h>
 
 #include <glad/gl.h>

@@ -14,20 +14,25 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef VECTOR_OBJECT_QUEUE_H
-#define VECTOR_OBJECT_QUEUE_H
+#ifndef VECTOR_OBJECT_H
+#define VECTOR_OBJECT_H
 
-#include <polygon_collider/vector_object.h>
+#include <polygon_collider/geometry/vector.h>
+#include <polygon_collider/graphics/color.h>
+#include <polygon_collider/geometry/edge.h>
 
-typedef struct VectorObjectQueue VectorObjectQueue;
+typedef struct VectorObject VectorObject;
 
-VectorObjectQueue *vector_object_queue_create();
-void vector_object_queue_destroy(VectorObjectQueue *vector_object_queue);
+VectorObject *vector_object_create();
+void vector_object_destroy(VectorObject *vector_object);
 
-void vector_object_queue_submit_vector(VectorObjectQueue *vector_object_queue, VectorObject *vector_object);
-void vector_object_queue_update(VectorObjectQueue *vector_object_queue, float delta_time);
+void vector_object_set_vector(VectorObject *vector_object, Vector vector);
+void vector_object_set_position(VectorObject *vector_object, Vector position);
+void vector_object_set_color(VectorObject *vector_object, Color color);
 
-unsigned int vector_object_queue_get_count(VectorObjectQueue *vector_object_queue);
-VectorObject *vector_object_queue_get_vector_object(VectorObjectQueue *vector_object_queue, unsigned int i);
+Edge vector_object_get_edge(VectorObject *vector_object);
+Color vector_object_get_color(VectorObject *vector_object);
+
+void vector_object_copy_tip(VectorObject *vector_object, Vector *tip_destination);
 
 #endif

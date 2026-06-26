@@ -14,22 +14,21 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef RENDERER_H
-#define RENDERER_H
 
-#include <polygon_collider/polygon_object.h>
-#include <polygon_collider/camera.h>
-#include <polygon_collider/vector_object.h>
-#include <polygon_collider/vector_object_queue.h>
+#include <polygon_collider/core/app.h>
+#include <SDL3/SDL_main.h>
+#include <stddef.h>
 
-typedef struct Renderer Renderer;
+int main()
+{
+    App *app = app_create();
+    if(app == NULL)
+        return 1;
 
-Renderer *renderer_create();
-void renderer_destroy(Renderer *renderer);
+    app_run(app);
 
-void renderer_submit_polygon(Renderer* renderer, PolygonObject *polygon);
-void renderer_submit_vector(Renderer* renderer, VectorObject *vector);
-void renderer_submit_vector_queue(Renderer *renderer, VectorObjectQueue *vector_object_queue);
-void renderer_flush(Renderer *renderer, Camera *camera);
+    app_destroy(app);
+    app = NULL;
 
-#endif
+    return 0;
+}

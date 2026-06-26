@@ -14,25 +14,41 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef VECTOR_OBJECT_H
-#define VECTOR_OBJECT_H
+#include <polygon_collider/system/stopwatch.h>
+#include <SDL3/SDL.h>
+#include <stdlib.h>
 
-#include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/color.h>
-#include <polygon_collider/geometry/edge.h>
+struct Stopwatch
+{
+    float prev_time;
+};
 
-typedef struct VectorObject VectorObject;
+Stopwatch *stopwatch_create()
+{
+    Stopwatch *stopwatch = malloc(sizeof(Stopwatch));
 
-VectorObject *vector_object_create();
-void vector_object_destroy(VectorObject *vector_object);
+    stopwatch->prev_time = (float)SDL_GetTicks() / 1000.0f;
 
-void vector_object_set_vector(VectorObject *vector_object, Vector vector);
-void vector_object_set_position(VectorObject *vector_object, Vector position);
-void vector_object_set_color(VectorObject *vector_object, Color color);
+    return stopwatch;
+}
 
-Edge vector_object_get_edge(VectorObject *vector_object);
-Color vector_object_get_color(VectorObject *vector_object);
+void stopwatch_destroy(Stopwatch *stopwatch)
+{
+    free(stopwatch);
+}
 
-void vector_object_copy_tip(VectorObject *vector_object, Vector *tip_destination);
+float stopwatch_measure(Stopwatch *stopwatch)
+{
+    float curr_time = (float)SDL_GetTicks() / 1000.0f;
+    return curr_time - stopwatch->prev_time;
+}
 
-#endif
+void stopwatch_reset(Stopwatch *stopwatch)
+{
+    stopwatch->prev_time = (float)SDL_GetTicks() / 1000.0f;
+}
+
+void stopwatch_wait(Stopwatch *stopwatch, float time)
+{
+    SDL_Delay(time * 1000);
+}

@@ -14,10 +14,10 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#include <polygon_collider/polygon_object.h>
+#include <polygon_collider/core/polygon_object.h>
 #include <polygon_collider/geometry/polygon.h>
 #include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/color.h>
+#include <polygon_collider/graphics/color.h>
 
 #include <math.h>
 #include <stddef.h>

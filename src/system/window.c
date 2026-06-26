@@ -14,7 +14,7 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#include <polygon_collider/window.h>
+#include <polygon_collider/system/window.h>
 #include <glad/gl.h>
 #include <SDL3/SDL.h>
 #include <stdlib.h>

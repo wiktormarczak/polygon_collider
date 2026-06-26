@@ -1,4 +1,4 @@
-#include <polygon_collider/vector_object.h>
+#include <polygon_collider/core/vector_object.h>
 #include <stdlib.h>
 
 struct VectorObject

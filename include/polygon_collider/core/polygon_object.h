@@ -18,8 +18,8 @@
 #define POLYGON_OBJECT_H
 
 #include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/vector_object_queue.h>
-#include <polygon_collider/color.h>
+#include <polygon_collider/core/vector_object_queue.h>
+#include <polygon_collider/graphics/color.h>
 
 typedef struct PolygonObject PolygonObject;
 

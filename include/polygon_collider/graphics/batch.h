@@ -17,7 +17,7 @@
 #ifndef BATCH_H
 #define BATCH_H
 
-#include <polygon_collider/polygon_object.h>
+#include <polygon_collider/core/polygon_object.h>
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/geometry/edge.h>
 

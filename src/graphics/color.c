@@ -14,7 +14,7 @@
 /* You should have received a copy of the GNU General Public License
  * along with Polygon Collider. If not, see <https://www.gnu.org/licenses/>. */
 
-#include <polygon_collider/color.h>
+#include <polygon_collider/graphics/color.h>
 
 Color color_get(float r, float g, float b)
 {
