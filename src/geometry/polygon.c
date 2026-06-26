@@ -17,7 +17,6 @@
 #include <polygon_collider/geometry/polygon.h>
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/geometry/line.h>
-#include <polygon_collider/collision.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -118,7 +117,7 @@ double polygon_get_linear_mass_brutally(Polygon *polygon)
     float linear_mass = 0.0f;
     for(float x = min_x; x < max_x; x += depth)
         for(float y = min_y; y < max_y; y += depth)
-            if(collision_is_point_inside(vector_get(x, y), polygon->vertex_count, polygon->vertex))
+            if(polygon_collision_is_point_inside(vector_get(x, y), polygon->vertex_count, polygon->vertex))
                 linear_mass += depth * depth;
 
     return linear_mass;
@@ -170,7 +169,7 @@ double polygon_get_angular_mass_brutally(Polygon *polygon)
     float angular_mass = 0.0f;
     for(float x = min_x; x < max_x; x += depth)
         for(float y = min_y; y < max_y; y += depth)
-            if(collision_is_point_inside(vector_get(x, y), polygon->vertex_count, polygon->vertex))
+            if(polygon_collision_is_point_inside(vector_get(x, y), polygon->vertex_count, polygon->vertex))
                 angular_mass += depth * depth * (x * x + y * y);
 
     return angular_mass;
@@ -194,3 +193,135 @@ void polygon_rotate(Polygon *polygon, double rotation)
 }
 
 // Collisions
+
+bool polygon_collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
+{
+    Vector contact_point_left, axis_left, contact_point_right, axis_right;
+    double overlap_left = polygon_collision_get_min_overlap(left, right, &contact_point_left, &axis_left);
+    double overlap_right = polygon_collision_get_min_overlap(right, left, &contact_point_right, &axis_right);
+
+    double overlap = overlap_left;
+    Vector contact_point = contact_point_left;
+    Vector axis = vector_get_scaled(axis_left, overlap_left);
+
+    if(overlap_right < overlap)
+    {
+        overlap = overlap_right;
+        contact_point = contact_point_right;
+        axis = vector_get_scaled(axis_right, -overlap_right);
+    }
+
+    if(overlap <= 0.0)
+        return false;
+
+    *contact_point_destination = contact_point;
+    *axis_destination = axis;
+    return true;
+}
+
+bool polygon_collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex)
+{
+    for(int i = 0; i < vertex_count; i++)
+    {
+        Vector axis = vector_get_normal(vertex[i], vertex[(i + 1) % vertex_count]);
+        double point_value = vector_get_dot_product(axis, point);
+        double polygon_value = vector_get_dot_product(axis, vertex[i]);
+
+        if(point_value > polygon_value)
+            return false;
+    }
+
+    return true;
+}
+
+double polygon_collision_get_min_overlap(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination)
+{
+    double min_overlap = FLT_MAX;
+    Vector min_contact_point, min_axis;
+
+    for(int i = 0; i < left->vertex_count; i++)
+    {
+        Vector axis = vector_get_normal(left->vertex[i], left->vertex[(i + 1) % left->vertex_count]);
+
+        Vector contact_point;
+        double left_max = vector_get_dot_product(axis, left->vertex[i]);
+        double right_min = polygon_collision_get_projection_min(axis, edge_get(left->vertex[i], left->vertex[(i + 1) % left->vertex_count]), right, &contact_point);
+
+        double overlap = left_max - right_min;
+
+        if(overlap < min_overlap)
+        {
+            min_overlap = overlap;
+            min_contact_point = contact_point;
+            min_axis = axis;
+        }
+    }
+
+    *contact_point_destination = min_contact_point;
+    *axis_destination = vector_get_negative(min_axis);
+    return min_overlap;
+}
+
+double polygon_collision_get_projection_min(Vector axis, Edge edge, Polygon *collision_box, Vector *contact_point_destination)
+{
+    double min = FLT_MAX;
+    Vector contact_point_1, contact_point_2;
+    bool db = false;
+
+    for(int i = 0; i < collision_box->vertex_count; i++)
+    {
+        double value = vector_get_dot_product(axis, collision_box->vertex[i]);
+
+        if(fabs(value - min) < 0.01f)
+        {
+            contact_point_2 = collision_box->vertex[i];
+            db = true;
+            continue;
+        }
+
+        if(value < min)
+        {
+            min = value;
+            contact_point_1 = collision_box->vertex[i];
+            db = false;
+            continue;
+        }
+    }
+
+    Vector contact_point = contact_point_1;
+
+    if(db)
+    {
+        Vector point[4];
+        point[0] = edge.initial_point;
+        point[1] = edge.terminal_point;
+        point[2] = contact_point_1;
+        point[3] = contact_point_2;
+
+        for(int i = 0; i < 4; i++)
+        {
+            double min_v = FLT_MAX;
+            unsigned int min_j = -1;
+
+            for(int j = i; j < 4; j++)
+            {
+                double v = vector_get_cross_product(axis, point[j]);
+
+                if(v < min_v)
+                {
+                    min_v = v;
+                    min_j = j;
+                }
+            }
+
+            Vector buffer = point[i];
+            point[i] = point[min_j];
+            point[min_j] = buffer;
+        }
+
+        contact_point = vector_get_average(point[1], point[2]);
+    }
+
+    *contact_point_destination = contact_point;
+    return min;
+}

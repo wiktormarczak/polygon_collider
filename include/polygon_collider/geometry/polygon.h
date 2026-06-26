@@ -18,6 +18,7 @@
 #define POLYGON_H
 
 #include <polygon_collider/geometry/vector.h>
+#include <polygon_collider/geometry/edge.h>
 
 typedef struct Polygon Polygon;
 
@@ -37,5 +38,10 @@ void polygon_copy_vertex(Polygon *polygon, Vector *vertex_destination);
 
 void polygon_translate(Polygon *polygon, Vector translation);
 void polygon_rotate(Polygon *polygon, double rotation);
+
+bool polygon_collision_check(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
+bool polygon_collision_is_point_inside(Vector point, unsigned int vertex_count, Vector *vertex);
+double polygon_collision_get_min_overlap(Polygon *left, Polygon *right, Vector *contact_point_destination, Vector *axis_destination);
+double polygon_collision_get_projection_min(Vector axis, Edge edge, Polygon *collision_box, Vector *contact_point_destination);
 
 #endif

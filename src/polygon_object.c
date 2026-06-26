@@ -17,7 +17,6 @@
 #include <polygon_collider/polygon_object.h>
 #include <polygon_collider/geometry/polygon.h>
 #include <polygon_collider/geometry/vector.h>
-#include <polygon_collider/collision.h>
 #include <polygon_collider/color.h>
 
 #include <math.h>
@@ -175,7 +174,7 @@ void polygon_object_copy_collision_parameters(PolygonObject *polygon_object, Vec
 bool polygon_object_collision_handle(PolygonObject *left, PolygonObject *right, VectorObjectQueue *vector_object_queue)
 {
     Vector contact_point, axis;
-    if(!collision_check(left, right, &contact_point, &axis))
+    if(!polygon_collision_check(left->global, right->global, &contact_point, &axis))
         return false;
 
     polygon_object_translate(left, axis);
@@ -223,7 +222,7 @@ void polygon_object_collision_handle_with_wall(PolygonObject *polygon, VectorObj
     for(int i = 0; i < 4; i++)
     {
         Vector contact_point;
-        double polygon_value = collision_get_projection_min(axis[i], edge[i], polygon->global, &contact_point);
+        double polygon_value = polygon_collision_get_projection_min(axis[i], edge[i], polygon->global, &contact_point);
         double edge_value = -fabs(bound[i]);
 
         if(polygon_value < edge_value)

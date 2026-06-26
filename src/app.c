@@ -24,7 +24,6 @@
 #include <polygon_collider/renderer.h>
 #include <polygon_collider/camera.h>
 #include <polygon_collider/polygon_object.h>
-#include <polygon_collider/collision.h>
 #include <polygon_collider/vector_object_queue.h>
 
 #include <stdbool.h>
