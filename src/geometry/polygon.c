@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <float.h>
+#include <stdbool.h>
 
 struct Polygon
 {

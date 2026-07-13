@@ -19,7 +19,7 @@
 #include <SDL3/SDL_main.h>
 #include <stddef.h>
 
-int main()
+int main(int argc, char **argv)
 {
     App *app = app_create();
     if(app == NULL)

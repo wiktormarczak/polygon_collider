@@ -41,8 +41,11 @@ void vector_object_queue_update(VectorObjectQueue *vector_object_queue, float de
     for(int i = vector_object_queue->left; i != vector_object_queue->right; i = (i + 1) % QUEUE_SIZE)
         vector_object_queue->destruction_time[i] -= delta_time;
 
-    while(vector_object_queue->destruction_time[vector_object_queue->left] < 0.0f)
-        vector_object_destroy(vector_object_queue->queue[vector_object_queue->left++]);
+    while(vector_object_queue->left != vector_object_queue->right && vector_object_queue->destruction_time[vector_object_queue->left] < 0.0f)
+    {
+        vector_object_destroy(vector_object_queue->queue[vector_object_queue->left]);
+        vector_object_queue->left = (vector_object_queue->left + 1) % QUEUE_SIZE;
+    }
 }
 
 unsigned int vector_object_queue_get_count(VectorObjectQueue *vector_object_queue)

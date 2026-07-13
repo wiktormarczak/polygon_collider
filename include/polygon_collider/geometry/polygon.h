@@ -19,6 +19,7 @@
 
 #include <polygon_collider/geometry/vector.h>
 #include <polygon_collider/geometry/edge.h>
+#include <stdbool.h>
 
 typedef struct Polygon Polygon;
 
